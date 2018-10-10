@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import "./Geo/AppGeo.less";
-import AppGeo from "./Geo/AppGeo";
+import "./components/Geo/AppGeo.less";
+import AppGeo from "./components/Geo/AppGeo";
 
 class App extends Component {
   render() {
