@@ -29,6 +29,12 @@ class AppGeo extends React.Component {
 		], options)
 		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet, urlUtils]) => {
 
+		// Proxy the route requests to avoid prompt for log in
+		urlUtils.addProxyRule({
+			urlPrefix: "route.arcgis.com",
+			proxyUrl: "/sproxy/"
+		});
+
 		// Point the URL to a valid route service
 		var routeTask = new RouteTask({
 			url: "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World"
@@ -58,12 +64,12 @@ class AppGeo extends React.Component {
 		// Define the symbology used to display the route
 		var routeSymbol = {
 			type: "simple-line", // autocasts as SimpleLineSymbol()
-			color: [0, 0, 255, 0.5],
-			width: 5
+			color: [0, 0, 255, 1],
+			width: 20
 		};
 
 		var map = new Map({
-			basemap: "streets-navigation-vector",
+			basemap: "streets",
 			layers: [routeLayer] // Add the route layer to the map
 		});
 
@@ -88,10 +94,7 @@ class AppGeo extends React.Component {
 			// Execute the route task if 2 or more stops are input
 			routeParams.stops.features.push(stop);
 			if (routeParams.stops.features.length >= 2) {
-				routeTask.solve(routeParams).then(
-					showRoute,
-					console.log("hola")
-				);
+				routeTask.solve(routeParams).then(showRoute);
 			}
 		}
 
