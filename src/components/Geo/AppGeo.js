@@ -20,18 +20,20 @@ class AppGeo extends React.Component {
     this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
   }
 
-  setArrayCoordinates(coordinates) {
+  setArrayCoordinates(event) {
+		var address_name = event.searchTerm;
+		var geometry = event.results[0].results[0].feature.geometry;
+		var puntos = { "coord": { "lat": geometry.latitude, "lng": geometry.longitude }, "address": address_name };
+		console.log("LALALALA");
+		console.log(puntos);
     this.setState({
-      lista_coordenadas: [...this.state.lista_coordenadas, coordinates]
+      lista_coordenadas: this.state.lista_coordenadas + puntos
     });
-    console.log(this.lista_coordenadas);
-  }
+	}
 
-  componentDidUpdate() {
-    if (this.lista_coordenadas !== []) {
-      console.log("LA CONCHAGE");
-    }
-  }
+	componentDidUpdate() {
+		console.log(this.state.lista_coordenadas);
+	}
 
 	componentDidMount() {
 
@@ -102,11 +104,7 @@ class AppGeo extends React.Component {
 
     var puntos = null;
 
-    search.on("search-complete", function(event) {
-      console.log("LALALALA");
-      var geometry = event.results[0].results[0].feature.geometry;
-      puntos = { lat: geometry.latitude, lng: geometry.longitude };
-    });
+    search.on("search-complete", this.setArrayCoordinates);
 
     if (puntos !== null) {
       this.setArrayCoordinates(puntos);
