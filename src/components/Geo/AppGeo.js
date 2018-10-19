@@ -23,16 +23,18 @@ class AppGeo extends React.Component {
   setArrayCoordinates(event) {
 		var address_name = event.searchTerm;
 		var geometry = event.results[0].results[0].feature.geometry;
-		var puntos = { "coord": { "lat": geometry.latitude, "lng": geometry.longitude }, "address": address_name };
-		console.log("LALALALA");
-		console.log(puntos);
+		var puntos = JSON.stringify({ coord: { lat: geometry.latitude, lng: geometry.longitude }, address: address_name });
     this.setState({
-      lista_coordenadas: this.state.lista_coordenadas + puntos
+      lista_coordenadas: this.state.lista_coordenadas.concat(puntos)
     });
 	}
 
 	componentDidUpdate() {
-		console.log(this.state.lista_coordenadas);
+		if (this.state.lista_coordenadas.length > 1) {
+			console.log("isa");
+			console.log(this.state.lista_coordenadas);
+		}
+		// console.log(JSON.parse(this.state.lista_coordenadas));
 	}
 
 	componentDidMount() {
@@ -96,30 +98,13 @@ class AppGeo extends React.Component {
 
     var search = new Search({
       view: view
-    });
-    
-    // var locator = new Locator('https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer');
-
-    view.ui.add(search, { position: "top-left", index: 2 });
-
-    var puntos = null;
+		});
 
     search.on("search-complete", this.setArrayCoordinates);
-
-    if (puntos !== null) {
-      this.setArrayCoordinates(puntos);
-    }
-
-    search.on("select-result", function(event) {
-      var address_name = { 'field_name': event.result.name };
-      var api = 'http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Locators/ESRI_Geocode_USA/GeocodeServer/findAddressCandidates?Address=380+New+York+Street&City=Redlands&State=CA&Zip=92373';
-      fetch(api, { mode: 'no-cors' }).then(response => console.log(response));
-    });
-
-
 		// Adds a graphic when the user clicks the map. If 2 or more points exist, route is solved.
     view.on("click", addStop);
 
+		view.ui.add(search, { position: "top-left", index: 2 });
 
 		function addStop(event) {
 			// Add a point at the location of the map click
