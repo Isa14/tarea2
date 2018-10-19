@@ -13,7 +13,8 @@ class AppGeo extends React.Component {
 		this.state = {
 			zoom: 14,
 			latitude: 38.889931,
-			longitude: -77.009003
+			longitude: -77.009003,
+			buffer: []
 		};
 	}
 
@@ -92,6 +93,8 @@ class AppGeo extends React.Component {
 				routeTask.solve(routeParams).then(showRoute);
 			}
 		}
+
+		console.log(routeLayer);
 
 		// Adds the solved route to the map as a graphic
 		function showRoute(data) {
