@@ -15,7 +15,7 @@ class AppGeo extends React.Component {
 		this.state = {
 			zoom: 14,
 			latitude: 38.889931,
-      longitude: -77.009003,
+      		longitude: -77.009003,
 			buffer: []
     };
 		this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
@@ -41,9 +41,10 @@ class AppGeo extends React.Component {
 			"esri/tasks/RouteTask",
 			"esri/tasks/support/RouteParameters",
 			"esri/tasks/support/FeatureSet",
+			"esri/geometry/Point",
       'esri/widgets/Search'
 		], options)
-		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet, Search]) => {
+		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, Point, FeatureSet, Search]) => {
 
 		// Point the URL to a valid route service
 		var routeTask = new RouteTask({
@@ -90,20 +91,18 @@ class AppGeo extends React.Component {
 			width: 5
 		};
 
-    var search = new Search({
-      view: view
-		});
+    var search = new Search({ view: view });
 
     search.on("search-complete", this.setArrayCoordinates);
 		// Adds a graphic when the user clicks the map. If 2 or more points exist, route is solved.
-    view.on("click", addStop);
 		view.ui.add(search, { position: "top-left", index: 2 });
+		view.on("click", addStop);
 
 		function addStop(event) {
 			// Add a point at the location of the map click
 			var stop = new Graphic({
 				geometry: event.mapPoint,
-        symbol: stopSymbol
+        		symbol: stopSymbol
 			});
 			routeLayer.add(stop);
 
