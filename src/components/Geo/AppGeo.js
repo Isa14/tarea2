@@ -3,6 +3,8 @@ import "./AppGeo.less";
 import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
 
+var steps = null;
+
 const options = {
   url: 'https://js.arcgis.com/4.9/'
 };
@@ -14,31 +16,23 @@ class AppGeo extends React.Component {
 			zoom: 14,
 			latitude: 38.889931,
       longitude: -77.009003,
-			lista_coordenadas: [],
 			buffer: []
     };
-    this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
+		this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
   }
 
   setArrayCoordinates(event) {
 		var address_name = event.searchTerm;
 		var geometry = event.results[0].results[0].feature.geometry;
 		var puntos = JSON.stringify({ coord: { lat: geometry.latitude, lng: geometry.longitude }, address: address_name });
-    this.setState({
-      lista_coordenadas: this.state.lista_coordenadas.concat(puntos)
-    });
+		this.props.setSteps(puntos);
 	}
 
 	componentDidUpdate() {
-		if (this.state.lista_coordenadas.length > 1) {
-			console.log("isa");
-			console.log(this.state.lista_coordenadas);
-		}
-		// console.log(JSON.parse(this.state.lista_coordenadas));
+		steps = this.props.steps;
 	}
 
 	componentDidMount() {
-
 		loadModules([
 			"esri/Map",
 			"esri/views/MapView",
@@ -103,14 +97,13 @@ class AppGeo extends React.Component {
     search.on("search-complete", this.setArrayCoordinates);
 		// Adds a graphic when the user clicks the map. If 2 or more points exist, route is solved.
     view.on("click", addStop);
-
 		view.ui.add(search, { position: "top-left", index: 2 });
 
 		function addStop(event) {
 			// Add a point at the location of the map click
 			var stop = new Graphic({
 				geometry: event.mapPoint,
-				symbol: stopSymbol
+        symbol: stopSymbol
 			});
 			routeLayer.add(stop);
 
@@ -120,8 +113,6 @@ class AppGeo extends React.Component {
 				routeTask.solve(routeParams).then(showRoute);
 			}
 		}
-
-		console.log(routeLayer);
 
 		// Adds the solved route to the map as a graphic
 		function showRoute(data) {
@@ -144,6 +135,8 @@ class AppGeo extends React.Component {
 
 AppGeo.propTypes = {
 	token: PropTypes.string,
+	setSteps: PropTypes.func,
+	steps: PropTypes.array
 };
 
 
