@@ -13,10 +13,25 @@ class AppGeo extends React.Component {
 		this.state = {
 			zoom: 14,
 			latitude: 38.889931,
-			longitude: -77.009003,
+      longitude: -77.009003,
+			lista_coordenadas: [],
 			buffer: []
-		};
-	}
+    };
+    this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
+  }
+
+  setArrayCoordinates(coordinates) {
+    this.setState({
+      lista_coordenadas: [...this.state.lista_coordenadas, coordinates]
+    });
+    console.log(this.lista_coordenadas);
+  }
+
+  componentDidUpdate() {
+    if (this.lista_coordenadas !== []) {
+      console.log("LA CONCHAGE");
+    }
+  }
 
 	componentDidMount() {
 
@@ -27,9 +42,10 @@ class AppGeo extends React.Component {
 			"esri/layers/GraphicsLayer",
 			"esri/tasks/RouteTask",
 			"esri/tasks/support/RouteParameters",
-			"esri/tasks/support/FeatureSet"
+			"esri/tasks/support/FeatureSet",
+      'esri/widgets/Search'
 		], options)
-		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet]) => {
+		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet, Search]) => {
 
 		// Point the URL to a valid route service
 		var routeTask = new RouteTask({
@@ -76,8 +92,36 @@ class AppGeo extends React.Component {
 			width: 5
 		};
 
+    var search = new Search({
+      view: view
+    });
+    
+    // var locator = new Locator('https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer');
+
+    view.ui.add(search, { position: "top-left", index: 2 });
+
+    var puntos = null;
+
+    search.on("search-complete", function(event) {
+      console.log("LALALALA");
+      var geometry = event.results[0].results[0].feature.geometry;
+      puntos = { lat: geometry.latitude, lng: geometry.longitude };
+    });
+
+    if (puntos !== null) {
+      this.setArrayCoordinates(puntos);
+    }
+
+    search.on("select-result", function(event) {
+      var address_name = { 'field_name': event.result.name };
+      var api = 'http://sampleserver1.arcgisonline.com/ArcGIS/rest/services/Locators/ESRI_Geocode_USA/GeocodeServer/findAddressCandidates?Address=380+New+York+Street&City=Redlands&State=CA&Zip=92373';
+      fetch(api, { mode: 'no-cors' }).then(response => console.log(response));
+    });
+
+
 		// Adds a graphic when the user clicks the map. If 2 or more points exist, route is solved.
-		view.on("click", addStop);
+    view.on("click", addStop);
+
 
 		function addStop(event) {
 			// Add a point at the location of the map click
