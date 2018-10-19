@@ -1,5 +1,6 @@
 import React from "react";
 import "./AppGeo.less";
+import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
 
 const options = {
@@ -17,6 +18,7 @@ class AppGeo extends React.Component {
 	}
 
 	componentDidMount() {
+
 		loadModules([
 			"esri/Map",
 			"esri/views/MapView",
@@ -24,19 +26,29 @@ class AppGeo extends React.Component {
 			"esri/layers/GraphicsLayer",
 			"esri/tasks/RouteTask",
 			"esri/tasks/support/RouteParameters",
-			"esri/tasks/support/FeatureSet",
-			"esri/core/urlUtils"
+			"esri/tasks/support/FeatureSet"
 		], options)
-		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet, urlUtils]) => {
-
+		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet]) => {
 
 		// Point the URL to a valid route service
 		var routeTask = new RouteTask({
-			url: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?token=OyMRlw2dH6xDS2dOULhSWulgGqrUc8lzqZawpqjVyvFAWYMlllqbYbwwNsNV8oJD0_6nildLxAv0PinYwqYnkmivAp9Eoygw9uAYXNJmRuGb-qJrth9bFPRJHwkDpri3vu8wyxvjcAd9PMuHgfyn6g.."
+			url: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?token=" + this.props.token
 		});
 
 		// The stops and route result will be stored in this layer
 		var routeLayer = new GraphicsLayer();
+
+		var map = new Map({
+			basemap: "streets",
+			layers: [routeLayer] // Add the route layer to the map
+		});
+
+		var view = new MapView({
+			container: "viewDiv",
+			map,
+			zoom: this.state.zoom,
+			center: [this.state.longitude, this.state.latitude]
+		});
 
 		// Setup the route parameters
 		var routeParams = new RouteParameters({
@@ -62,18 +74,6 @@ class AppGeo extends React.Component {
 			color: [0, 0, 255, 0.5],
 			width: 5
 		};
-
-		var map = new Map({
-			basemap: "streets",
-			layers: [routeLayer] // Add the route layer to the map
-		});
-
-		var view = new MapView({
-			container: "viewDiv",
-			map,
-			zoom: this.state.zoom,
-			center: [this.state.longitude, this.state.latitude]
-		});
 
 		// Adds a graphic when the user clicks the map. If 2 or more points exist, route is solved.
 		view.on("click", addStop);
@@ -111,5 +111,10 @@ class AppGeo extends React.Component {
 		);
 	}
 }
+
+AppGeo.propTypes = {
+	token: PropTypes.string,
+};
+
 
 export default AppGeo;
