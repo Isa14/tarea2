@@ -3,8 +3,8 @@ import "./AppGeo.less";
 import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
 
+var map = null;
 var steps = null;
-var routeParams = null;
 
 const options = {
   url: 'https://js.arcgis.com/4.9/'
@@ -25,7 +25,6 @@ class AppGeo extends React.Component {
   setArrayCoordinates(event) {
 		var address_name = event.result.name;
 		var geometry = event.result.feature.geometry;
-		console.log(event.result.feature);
 		var puntos = {
 			address: address_name,
 			geometry: geometry
@@ -46,10 +45,9 @@ class AppGeo extends React.Component {
 			"esri/tasks/RouteTask",
 			"esri/tasks/support/RouteParameters",
 			"esri/tasks/support/FeatureSet",
-			"esri/geometry/Point",
       		'esri/widgets/Search'
 		], options)
-		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, Point, FeatureSet, Search]) => {
+		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet, Search]) => {
 
 		// Point the URL to a valid route service
 		var routeTask = new RouteTask({
@@ -60,7 +58,7 @@ class AppGeo extends React.Component {
 		var routeLayer = new GraphicsLayer();
 
 		// Setup the route parameters
-		routeParams = new RouteParameters({
+		var routeParams = new RouteParameters({
 			stops: new FeatureSet(),
 			outSpatialReference: { // autocasts as new SpatialReference()
 				wkid: 3857
@@ -84,7 +82,7 @@ class AppGeo extends React.Component {
 			width: 5
 		};
 
-		var map = new Map({
+		map = new Map({
 			basemap: "streets",
 			layers: [routeLayer] // Add the route layer to the map
 		});
@@ -98,6 +96,7 @@ class AppGeo extends React.Component {
 
 		var search = new Search({ view: view }, "search");
 		search.on("select-result", this.setArrayCoordinates);
+		search.on("select-result", addStop);
 		// si querés probar que se vea el punto sólo al buscar, reemplaza la funcion de arriba por addStop
 		// view.on("click", addStop);
 
