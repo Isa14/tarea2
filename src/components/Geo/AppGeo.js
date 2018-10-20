@@ -97,13 +97,8 @@ class AppGeo extends React.Component {
 
 		var search = new Search({ view: view }, "search");
 		search.on("select-result", this.setArrayCoordinates);
-		search.on("search-complete", alfajor);
 		// si querés probar que se vea el punto sólo al buscar, reemplaza la funcion de arriba por addStop
 		// view.on("click", addStop);
-
-		function alfajor(evento) {
-			console.log('hol');
-		}
 
 		function addStop(event) {
 			// Add a point at the location of the map click
