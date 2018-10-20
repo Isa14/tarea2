@@ -28,12 +28,12 @@ class Menu extends React.Component {
         ];
 
         return <div className="tm-offcanvas-bar">
-            <div className="tm-burger">
-              <a className="tm-link-burger" onClick={this.handleClick}>
-                <img className="tm-svg" src="menu.svg" alt="menu" />
-              </a>
-            </div>
             <div className={classOffcanvas.join(" ").trim()}>
+                <div className="tm-burger">
+                    <a className="tm-link-burger" onClick={this.handleClick}>
+                        <img className="tm-svg" src="menu.svg" alt="menu" />
+                    </a>
+                </div>
               <div className={classCloseOffcanvas.join(" ").trim()}>
                 <a onClick={this.handleClick}>x</a>
               </div>

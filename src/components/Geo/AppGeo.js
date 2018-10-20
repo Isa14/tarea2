@@ -34,6 +34,7 @@ class AppGeo extends React.Component {
 
 	componentDidUpdate() {
 		steps = this.props.steps;
+		console.log(this.props.token);
 	}
 
 	componentDidMount() {

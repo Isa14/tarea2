@@ -1,7 +1,6 @@
 @import "../../less/uikit.master.less";
 
 .tm-offcanvas-bar{
-    position: absolute;
     left: 0px;
     top: 0px;
     z-index: 999;
@@ -9,7 +8,6 @@
 
 .tm-offcanvas{
     #uk-library > .transition(all 0.5s);
-    position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
@@ -71,6 +69,9 @@
 .tm-offcanvas-expand{
     width: 300px;
     background-color: #222;
+    .tm-burger{
+        left: 315px !important;
+    }
 }
 
 .tm-close-offcanvas{
@@ -81,6 +82,7 @@
 
 .tm-burger{
     position: absolute;
+    #uk-library > .transition(all 0.5s);
     left: 15px;
     top: 85px;
     height: 32px;
