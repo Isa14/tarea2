@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
 
 var steps = null;
+var routeParams = null;
 
 const options = {
   url: 'https://js.arcgis.com/4.9/'
@@ -22,10 +23,14 @@ class AppGeo extends React.Component {
   }
 
   setArrayCoordinates(event) {
-		var address_name = event.searchTerm;
-		var geometry = event.results[0].results[0].feature.geometry;
-		var puntos = JSON.stringify({ coord: { lat: geometry.latitude, lng: geometry.longitude }, address: address_name });
+		var address_name = event.result.name;
+		var geometry = event.result.feature.geometry;
+		var puntos = {
+			address: address_name,
+			geometry: geometry
+		};
 		this.props.setSteps(puntos);
+		// console.log(geometry);
 	}
 
 	componentDidUpdate() {
@@ -42,7 +47,7 @@ class AppGeo extends React.Component {
 			"esri/tasks/support/RouteParameters",
 			"esri/tasks/support/FeatureSet",
 			"esri/geometry/Point",
-      'esri/widgets/Search'
+      		'esri/widgets/Search'
 		], options)
 		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, Point, FeatureSet, Search]) => {
 
@@ -54,20 +59,8 @@ class AppGeo extends React.Component {
 		// The stops and route result will be stored in this layer
 		var routeLayer = new GraphicsLayer();
 
-		var map = new Map({
-			basemap: "streets",
-			layers: [routeLayer] // Add the route layer to the map
-		});
-
-		var view = new MapView({
-			container: "viewDiv",
-			map,
-			zoom: this.state.zoom,
-			center: [this.state.longitude, this.state.latitude]
-		});
-
 		// Setup the route parameters
-		var routeParams = new RouteParameters({
+		routeParams = new RouteParameters({
 			stops: new FeatureSet(),
 			outSpatialReference: { // autocasts as new SpatialReference()
 				wkid: 3857
@@ -91,18 +84,31 @@ class AppGeo extends React.Component {
 			width: 5
 		};
 
-    var search = new Search({ view: view });
+		var map = new Map({
+			basemap: "streets",
+			layers: [routeLayer] // Add the route layer to the map
+		});
 
-    search.on("search-complete", this.setArrayCoordinates);
-		// Adds a graphic when the user clicks the map. If 2 or more points exist, route is solved.
+		var view = new MapView({
+			container: "viewDiv",
+			map,
+			zoom: this.state.zoom,
+			center: [this.state.longitude, this.state.latitude]
+		});
+
+		var search = new Search({ view: view });
 		view.ui.add(search, { position: "top-left", index: 2 });
-		view.on("click", addStop);
+		search.on("select-result", this.setArrayCoordinates);
+
+		// view.on("click", addStop);
 
 		function addStop(event) {
+			console.log(event.result.name);
+			console.log(event.result.feature.geometry);
 			// Add a point at the location of the map click
 			var stop = new Graphic({
-				geometry: event.mapPoint,
-        		symbol: stopSymbol
+				geometry: event.result.feature.geometry,
+				symbol: stopSymbol
 			});
 			routeLayer.add(stop);
 
@@ -112,13 +118,11 @@ class AppGeo extends React.Component {
 				routeTask.solve(routeParams).then(showRoute);
 			}
 		}
-
 		// Adds the solved route to the map as a graphic
 		function showRoute(data) {
 			var routeResult = data.routeResults[0].route;
 			routeResult.symbol = routeSymbol;
 			routeLayer.add(routeResult);
-			view.addLayers(routeLayer);
 		}
 	});
 }
