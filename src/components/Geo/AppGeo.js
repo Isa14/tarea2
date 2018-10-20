@@ -25,6 +25,7 @@ class AppGeo extends React.Component {
   setArrayCoordinates(event) {
 		var address_name = event.result.name;
 		var geometry = event.result.feature.geometry;
+		console.log(event.result.feature);
 		var puntos = {
 			address: address_name,
 			geometry: geometry
@@ -34,7 +35,6 @@ class AppGeo extends React.Component {
 
 	componentDidUpdate() {
 		steps = this.props.steps;
-		console.log(this.props.token);
 	}
 
 	componentDidMount() {
