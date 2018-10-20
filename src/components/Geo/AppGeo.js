@@ -96,8 +96,7 @@ class AppGeo extends React.Component {
 			center: [this.state.longitude, this.state.latitude]
 		});
 
-		var search = new Search({ view: view });
-		view.ui.add(search, { position: "top-left", index: 2 });
+		var search = new Search({ map: map }, "search");
 		search.on("select-result", this.setArrayCoordinates);
 
 		// view.on("click", addStop);

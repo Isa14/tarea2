@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./components/Geo/AppGeo.less";
 import AppGeo from "./components/Geo/AppGeo";
+import Menu from "./components/Menu/Menu";
 
 var globalToken = null;
 
@@ -57,6 +58,7 @@ class App extends Component {
   render() {
     return (
       <div id="id-page" className="tm-page uk-flex uk-flex-center">
+        <Menu />
         {this.state.token ? <AppGeo token={this.state.token} setSteps={this.setSteps} steps={this.state.steps} /> : <div />}
       </div>
     );
