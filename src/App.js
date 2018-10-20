@@ -58,7 +58,7 @@ class App extends Component {
   render() {
     return (
       <div id="id-page" className="tm-page uk-flex uk-flex-center">
-        <Menu />
+        <Menu steps={this.state.steps}/>
         {this.state.token ? <AppGeo token={this.state.token} setSteps={this.setSteps} steps={this.state.steps} /> : <div />}
       </div>
     );
