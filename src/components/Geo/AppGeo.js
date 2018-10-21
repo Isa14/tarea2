@@ -53,17 +53,6 @@ class AppGeo extends React.Component {
 			url: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?token=" + this.props.token
 		});
 
-		// The stops and route result will be stored in this layer
-		var routeLayer = new GraphicsLayer();
-
-		// Setup the route parameters
-		var routeParams = new RouteParameters({
-			stops: new FeatureSet(),
-			outSpatialReference: { // autocasts as new SpatialReference()
-				wkid: 3857
-			}
-		});
-
 		// Define the symbology used to display the stops
 		var stopSymbol = {
 			type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
@@ -73,6 +62,8 @@ class AppGeo extends React.Component {
 				width: 6
 			}
 		};
+
+		var routeLayer = new GraphicsLayer();
 
 		// Define the symbology used to display the route
 		var routeSymbol = {
@@ -95,24 +86,43 @@ class AppGeo extends React.Component {
 
 		var search = new Search({ view: view }, "search");
 		search.on("select-result", this.setArrayCoordinates);
-		search.on("select-result", addStop);
+		search.on("select-result", addRouteLayer);
 		// si querés probar que se vea el punto sólo al buscar, reemplaza la funcion de arriba por addStop
 		// view.on("click", addStop);
 
-		function addStop(event) {
+		function addRouteLayer() {
 			// Add a point at the location of the map click
-			var stop = new Graphic({
-				geometry: event.result.feature.geometry,
-				symbol: stopSymbol
+			map.layers.removeAll();
+			// The stops and route result will be stored in this layer
+			routeLayer = new GraphicsLayer();
+			map.layers.add(routeLayer);
+
+			// Setup the route parameters
+			var routeParams = new RouteParameters({
+				stops: new FeatureSet(),
+				outSpatialReference: { // autocasts as new SpatialReference()
+					wkid: 3857
+				}
 			});
-			routeLayer.add(stop);
+
+			steps.map(stop => addStop(stop));
+
+
+			function addStop(substep) {
+				var stop = new Graphic({
+					geometry: substep.geometry,
+					symbol: stopSymbol
+				});
+				routeLayer.add(stop);
+				routeParams.stops.features.push(stop);
+			}
 
 			// Execute the route task if 2 or more stops are input
-			routeParams.stops.features.push(stop);
 			if (routeParams.stops.features.length >= 2) {
 				routeTask.solve(routeParams).then(showRoute);
 			}
 		}
+
 		// Adds the solved route to the map as a graphic
 		function showRoute(data) {
 			var routeResult = data.routeResults[0].route;
