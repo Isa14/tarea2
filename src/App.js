@@ -10,11 +10,29 @@ class App extends Component {
     super(props);
     this.state = {
       token: null,
-      steps: []
+      steps: [],
+      buffer: []
     };
     this.handleRequest = this.handleRequest.bind(this);
     this.setSteps = this.setSteps.bind(this);
     this.quitStep = this.quitStep.bind(this);
+    this.saveSteps = this.saveSteps.bind(this);
+    this.deleteSteps = this.deleteSteps.bind(this);
+  }
+
+  saveSteps() {
+    let list = this.state.steps;
+    this.setState({
+      steps: [],
+      buffer: this.state.buffer.concat(list)
+    });
+    console.log(list);
+  }
+
+  deleteSteps() {
+    this.setState({
+      steps: [],
+    });
   }
 
   quitStep(step) {
@@ -64,7 +82,12 @@ class App extends Component {
   render() {
     return (
       <div id="id-page" className="tm-page uk-flex uk-flex-center">
-        <Menu steps={this.state.steps} quitStep={this.quitStep} />
+        <Menu
+          steps={this.state.steps}
+          quitStep={this.quitStep}
+          saveSteps={this.saveSteps}
+          deleteSteps={this.deleteSteps}
+          />
         {this.state.token ?
           <AppGeo
             token={this.state.token}

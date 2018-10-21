@@ -3,69 +3,99 @@ import "./Menu.less";
 import PropTypes from "prop-types";
 
 class Menu extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isMenuOpened: false
-        };
-        this.handleClick = this.handleClick.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      isMenuOpened: false
+    };
+    this.handleClick = this.handleClick.bind(this);
+    this.handleSave = this.handleSave.bind(this);
+    this.handleCancel = this.handleCancel.bind(this);
+  }
 
-    handleQuitStep(key) {
-        this.props.quitStep(key);
-    }
+  handleQuitStep(key) {
+    this.props.quitStep(key);
+  }
 
-    handleClick() {
-        const { isMenuOpened } = this.state;
-        this.setState({ isMenuOpened: !isMenuOpened });
-    }
+  handleCancel() {
+      this.props.deleteSteps();
+  }
 
-    render() {
-        let classOffcanvas = [
-            "tm-offcanvas",
-            this.state.isMenuOpened ? "tm-offcanvas-expand" : "tm-offcanvas-not-expanded"
-        ];
+  handleSave() {
+      this.props.saveSteps();
+  }
 
-        let classCloseOffcanvas = [
-            "tm-close-offcanvas",
-            this.state.isMenuOpened ? "" : "uk-hidden"
-        ];
+  handleClick() {
+    const { isMenuOpened } = this.state;
+    this.setState({ isMenuOpened: !isMenuOpened });
+  }
 
-        return <div className="tm-offcanvas-bar">
-            <div className={classOffcanvas.join(" ").trim()}>
-                <div className="tm-burger">
-                    <a className="tm-link-burger" onClick={this.handleClick}>
-                        <img className="tm-svg" src="menu.svg" alt="menu" />
-                    </a>
-                </div>
-              <div className={classCloseOffcanvas.join(" ").trim()}>
-                <a onClick={this.handleClick}>x</a>
-              </div>
+  render() {
+    let classOffcanvas = [
+      "tm-offcanvas",
+      this.state.isMenuOpened
+        ? "tm-offcanvas-expand"
+        : "tm-offcanvas-not-expanded"
+    ];
 
-              <div className="tm-content">
-                <div>
-                  <div id="search" />
-                </div>
-                <div className="tm-ruta">
-                    <h2>Paradas de la ruta actual</h2>
-                    <ul className="tm-list">
-                    {
-                        this.props.steps.length > 0
-                        ?
-                        this.props.steps.map((step, index) => <li key={index}>{step.address}<a onMouseDown={this.handleQuitStep.bind(this, index)}>x</a></li>)
-                        : <p>Aún no ha seleccionado ninguna parada para su ruta.</p>
-                    }
-                    </ul>
-                </div>
-              </div>
+    let classCloseOffcanvas = [
+      "tm-close-offcanvas",
+      this.state.isMenuOpened ? "" : "uk-hidden"
+    ];
+
+    return (
+      <div className="tm-offcanvas-bar">
+        <div className={classOffcanvas.join(" ").trim()}>
+          <div className="tm-burger">
+            <a className="tm-link-burger" onClick={this.handleClick}>
+              <img className="tm-svg" src="menu.svg" alt="menu" />
+            </a>
+          </div>
+          <div className={classCloseOffcanvas.join(" ").trim()}>
+            <a onClick={this.handleClick}>x</a>
+          </div>
+
+          <div className="tm-content">
+            <div>
+              <div id="search" />
             </div>
-          </div>;
-    }
+            <div className="tm-ruta">
+              <h2>Paradas de la ruta actual</h2>
+              <ul className="tm-list">
+                {this.props.steps.length > 0 ?
+                  this.props.steps.map((step, index) =>
+                    <li draggable key={index}>
+                      {step.address}
+                      <a onMouseDown={this.handleQuitStep.bind(this, index)}>
+                        x
+                      </a>
+                    </li>
+                  )
+                :
+                  <p>Aún no ha seleccionado ninguna parada para su ruta.</p>
+                }
+              </ul>
+              {this.props.steps.length > 0 ?
+                <div className="uk-flex uk-flex-center uk-flex-between">
+                  <a onMouseDown={this.handleSave} className="uk-button tm-button-guardar">Guardar</a>
+                  <a onMouseDown={this.handleCancel} className="uk-button tm-button-cancelar">Cancelar</a>
+                </div>
+              :
+                <div />
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 Menu.propTypes = {
     steps: PropTypes.array,
-    quitStep: PropTypes.func
+    quitStep: PropTypes.func,
+    deleteSteps: PropTypes.func,
+    saveSteps: PropTypes.func
 };
 
 
