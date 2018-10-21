@@ -3,7 +3,6 @@ import "./AppGeo.less";
 import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
 
-var map = null;
 var steps = null;
 var routeLayer = null;
 
@@ -21,7 +20,7 @@ class AppGeo extends React.Component {
 	};
 		this.updateRouteLayer = this.updateRouteLayer.bind(this);
 		this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
-  }
+	}
 
   updateRouteLayer() {
 	  loadModules([
@@ -55,23 +54,24 @@ class AppGeo extends React.Component {
 		};
 
 		// Add a point at the location of the map click
-		map.layers.removeAll();
+		this.map.layers.removeAll();
+
 		// The stops and route result will be stored in this layer
 		routeLayer = new GraphicsLayer();
-		map.layers.add(routeLayer);
+
+		this.map.layers.add(routeLayer);
 
 		// Setup the route parameters
-		var routeParams = new RouteParameters({
+		this.routeParams = new RouteParameters({
 			stops: new FeatureSet(),
 			outSpatialReference: { // autocasts as new SpatialReference()
 				wkid: 3857
 			}
 		});
 
-		steps.map(stop => addStop(stop));
+		steps.map(stop => addStop(this.routeParams, stop));
 
-
-		function addStop(substep) {
+		function addStop(routeParams, substep) {
 			var stop = new Graphic({
 				geometry: substep.geometry,
 				symbol: stopSymbol
@@ -81,8 +81,8 @@ class AppGeo extends React.Component {
 		}
 
 		// Execute the route task if 2 or more stops are input
-		if (routeParams.stops.features.length >= 2) {
-			routeTask.solve(routeParams).then(showRoute);
+		if (this.routeParams.stops.features.length >= 2) {
+			routeTask.solve(this.routeParams).then(showRoute);
 		}
 
 		// Adds the solved route to the map as a graphic
@@ -118,28 +118,28 @@ class AppGeo extends React.Component {
 		], options)
 		.then(([Map, MapView, GraphicsLayer, Search]) => {
 
-		var routeLayer = new GraphicsLayer();
+			// The stops and route result will be stored in this layer
+			this.routeLayer = new GraphicsLayer();
 
-		map = new Map({
-			basemap: "streets",
-			layers: [routeLayer] // Add the route layer to the map
+			this.map = new Map({
+				basemap: "streets",
+				layers: [this.routeLayer] // Add the route layer to the map
+			});
+
+			this.view = new MapView({
+				container: "viewDiv",
+				map: this.map,
+				zoom: this.state.zoom,
+				center: [this.state.longitude, this.state.latitude]
+			});
+
+			this.search = new Search({ view: this.view }, "search");
+			this.search.on("select-result", this.setArrayCoordinates);
+			this.search.on("select-result", this.addStop);
 		});
-
-		var view = new MapView({
-			container: "viewDiv",
-			map,
-			zoom: this.state.zoom,
-			center: [this.state.longitude, this.state.latitude]
-		});
-
-		var search = new Search({ view: view }, "search");
-		search.on("select-result", this.setArrayCoordinates);
-		// view.on("click", addStop);
-	});
-}
+	}
 
 	render() {
-
 		return (
 			<div id="viewDiv">
 			</div>
