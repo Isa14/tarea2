@@ -11,6 +11,10 @@ class Menu extends React.Component {
         this.handleClick = this.handleClick.bind(this);
     }
 
+    handleQuitStep(key) {
+        this.props.quitStep(key);
+    }
+
     handleClick() {
         const { isMenuOpened } = this.state;
         this.setState({ isMenuOpened: !isMenuOpened });
@@ -48,7 +52,7 @@ class Menu extends React.Component {
                     {
                         this.props.steps.length > 0
                         ?
-                        this.props.steps.map((step, index) => <li key={index}>{step.address}</li>)
+                        this.props.steps.map((step, index) => <li key={index}>{step.address}<a onMouseDown={this.handleQuitStep.bind(this, index)}>x</a></li>)
                         : <p>Aún no ha seleccionado ninguna parada para su ruta.</p>
                     }
                     </ul>
@@ -60,7 +64,8 @@ class Menu extends React.Component {
 }
 
 Menu.propTypes = {
-    steps: PropTypes.array
+    steps: PropTypes.array,
+    quitStep: PropTypes.func
 };
 
 

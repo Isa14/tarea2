@@ -14,6 +14,12 @@ class App extends Component {
     };
     this.handleRequest = this.handleRequest.bind(this);
     this.setSteps = this.setSteps.bind(this);
+    this.quitStep = this.quitStep.bind(this);
+  }
+
+  quitStep(step) {
+    let newList = this.state.steps.filter((sub, index) => index !== step);
+    this.setState({ steps: newList });
   }
 
   setSteps(step) {
@@ -58,8 +64,16 @@ class App extends Component {
   render() {
     return (
       <div id="id-page" className="tm-page uk-flex uk-flex-center">
-        <Menu steps={this.state.steps}/>
-        {this.state.token ? <AppGeo token={this.state.token} setSteps={this.setSteps} steps={this.state.steps} /> : <div />}
+        <Menu steps={this.state.steps} quitStep={this.quitStep} />
+        {this.state.token ?
+          <AppGeo
+            token={this.state.token}
+            setSteps={this.setSteps}
+            steps={this.state.steps}
+          />
+        :
+          <div />
+        }
       </div>
     );
   }
