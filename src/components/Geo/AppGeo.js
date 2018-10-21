@@ -16,8 +16,7 @@ class AppGeo extends React.Component {
 		this.state = {
 			zoom: 14,
 			latitude: 38.889931,
-      		longitude: -77.009003,
-			buffer: []
+      		longitude: -77.009003
     };
 		this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
   }
