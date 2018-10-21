@@ -80,16 +80,10 @@
 }
 
 .tm-offcanvas-expand{
-    width: 300px;
+    width: 330px;
     background-color: #222;
     .tm-burger{
-        left: 315px !important;
-    }
-}
-
-.tm-close-offcanvas{
-    a{
-        color: #fff;
+        left: 345px !important;
     }
 }
 
@@ -103,12 +97,24 @@
 }
 
 .tm-close-offcanvas{
-    text-align: right;
-    padding-right: 10px;
-    padding-top: 5px;
-    font-size: 25px;
-    a:hover{
-        text-decoration: none !important;
+    padding: 0;
+    height: 100%;
+    background-color: #777;
+    line-height: 20px;
+    text-align: center;
+
+    .tm-svg{
+        height: 20px;
+        width: 20px;
+    }
+
+    a{
+        height: 40px; width: 40px;
+        min-height: 40px; line-height: 40px;
+        display: block;
+        &:hover{
+            background-color: #aaa;
+        }
     }
 }
 
