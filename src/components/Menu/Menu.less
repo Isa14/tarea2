@@ -1,0 +1,157 @@
+@import "../../less/uikit.master.less";
+
+.tm-offcanvas-bar{
+    left: 0px;
+    top: 0px;
+    z-index: 999;
+}
+
+.tm-offcanvas{
+    #uk-library > .transition(all 0.5s);
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0px;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.tm-offcanvas-not-expanded{
+    .esri-search{
+        .uk-hidden;
+    }
+}
+
+.tm-content{
+    padding: 25px;
+
+    & > div + div{
+        margin-top: 25px;
+    }
+
+    h2{
+        font-size: 20px; line-height: 24px;
+        color: #ccc;
+    }
+
+    p{
+        color: #fff;
+        font-size: 16px; line-height: 20px;
+    }
+
+    .tm-list{
+        padding-left: 0;
+        list-style-type: none;
+
+        & > li + li {
+            border-top: 1px solid #444;
+        }
+
+        & > li{
+            padding: 10px;
+            padding-right: 20px;
+            color: #fff;
+            font-size: 16px; line-height: 20px;
+            border-bottom: 1px solid #000;
+            position: relative;
+            a{
+                position: absolute;
+                right: 5px;
+                top: 50%;
+                #uk-library > .translate(0, -50%);
+                color: lighten(#D02E1F, 15%);
+                &:hover{
+                    color: #D02E1F;
+                    text-decoration: none;
+                }
+            }
+        }
+
+        & > li:last-child{
+            border-bottom: none;
+        }
+    }
+}
+
+.esri-search{
+    width: 100% !important;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tm-offcanvas-expand{
+    width: 300px;
+    background-color: #222;
+    .tm-burger{
+        left: 315px !important;
+    }
+}
+
+.tm-close-offcanvas{
+    a{
+        color: #fff;
+    }
+}
+
+.tm-burger{
+    position: absolute;
+    #uk-library > .transition(all 0.5s);
+    left: 15px;
+    top: 85px;
+    height: 32px;
+    width: 32px;
+}
+
+.tm-close-offcanvas{
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 5px;
+    font-size: 25px;
+    a:hover{
+        text-decoration: none !important;
+    }
+}
+
+.tm-link-burger{
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    background-color: #fff;
+    border-top: solid 1px rgba(50,50,50,0.25);
+    .tm-svg{
+        height: 16px;
+        width: 16px;
+    }
+
+    &:hover{
+      background-color: #f0f0f0;  
+    }
+}
+
+.uk-button{
+    font-size: 12px;
+    min-height: 30px;
+    line-height: 30px;
+    color: #fff;
+    #uk-library > .border-radius(500px);
+    padding: 0;
+    width: 115px;
+    text-align: center;
+    &:hover{
+        color: #fff;
+    }
+}
+
+.tm-button-guardar{
+    background: #008046 !important;
+    &:hover{
+        background: lighten(#008046, 15%) !important;
+    }
+}
+
+.tm-button-cancelar{
+    background: #D02E1F !important;
+    &:hover{
+        background: lighten(#D02E1F, 15%) !important;
+    }
+
+}
