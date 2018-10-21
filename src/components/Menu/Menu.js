@@ -32,7 +32,7 @@ class Menu extends React.Component {
 
   render() {
     let classOffcanvas = [
-      "tm-offcanvas",
+      "tm-offcanvas uk-flex",
       this.state.isMenuOpened
         ? "tm-offcanvas-expand"
         : "tm-offcanvas-not-expanded"
@@ -50,9 +50,6 @@ class Menu extends React.Component {
             <a className="tm-link-burger" onClick={this.handleClick}>
               <img className="tm-svg" src="menu.svg" alt="menu" />
             </a>
-          </div>
-          <div className={classCloseOffcanvas.join(" ").trim()}>
-            <a onClick={this.handleClick}>x</a>
           </div>
 
           <div className="tm-content">
@@ -84,6 +81,11 @@ class Menu extends React.Component {
                 <div />
               }
             </div>
+          </div>
+          <div className={classCloseOffcanvas.join(" ").trim()}>
+            <a onClick={this.handleClick}><img src="cancel.svg" className="tm-svg" alt="svg" /></a>
+            <a><img src="lupa.svg" className="tm-svg" alt="svg" /></a>
+            <a><img src="way.svg" className="tm-svg" alt="svg" /></a>
           </div>
         </div>
       </div>
