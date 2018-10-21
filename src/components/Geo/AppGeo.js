@@ -18,11 +18,13 @@ class AppGeo extends React.Component {
 			latitude: 38.889931,
       		longitude: -77.009003,
 			buffer: []
-    };
+    	};
 		this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
-  }
+		this.showRoute = this.showRoute.bind(this);
+		this.addStop = this.addStop.bind(this);
+  	}
 
-  setArrayCoordinates(event) {
+  	setArrayCoordinates(event) {
 		var address_name = event.result.name;
 		var geometry = event.result.feature.geometry;
 		var puntos = {
@@ -49,79 +51,84 @@ class AppGeo extends React.Component {
 		], options)
 		.then(([Map, MapView, Graphic, GraphicsLayer, RouteTask, RouteParameters, FeatureSet, Search]) => {
 
-		// Point the URL to a valid route service
-		var routeTask = new RouteTask({
-			url: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?token=" + this.props.token
+			// Point the URL to a valid route service
+			this.routeTask = new RouteTask({
+				url: "http://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World/solve?token=" + this.props.token
+			});
+
+			// The stops and route result will be stored in this layer
+			this.routeLayer = new GraphicsLayer();
+
+			// Setup the route parameters
+			this.routeParams = new RouteParameters({
+				stops: new FeatureSet(),
+				outSpatialReference: { // autocasts as new SpatialReference()
+					wkid: 3857
+				}
+			});
+
+			// Define the symbology used to display the stops
+			this.stopSymbol = {
+				type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+				style: "cross",
+				size: 15,
+				outline: { // autocasts as new SimpleLineSymbol()
+					width: 6
+				}
+			};
+
+			// Define the symbology used to display the route
+			this.routeSymbol = {
+				type: "simple-line", // autocasts as SimpleLineSymbol()
+				color: [0, 0, 255, 0.5],
+				width: 5
+			};
+
+			this.map = new Map({
+				basemap: "streets",
+				layers: [this.routeLayer] // Add the route layer to the map
+			});
+
+			this.view = new MapView({
+				container: "viewDiv",
+				map: this.map,
+				zoom: this.state.zoom,
+				center: [this.state.longitude, this.state.latitude]
+			});
+
+			this.search = new Search({ view: this.view }, "search");
+			this.search.on("select-result", this.setArrayCoordinates);
+			this.search.on("select-result", this.addStop);
+
+			// si querés probar que se vea el punto sólo al buscar, reemplaza la funcion de arriba por addStop
+			// view.on("click", addStop);
 		});
+	}
 
-		// The stops and route result will be stored in this layer
-		var routeLayer = new GraphicsLayer();
-
-		// Setup the route parameters
-		var routeParams = new RouteParameters({
-			stops: new FeatureSet(),
-			outSpatialReference: { // autocasts as new SpatialReference()
-				wkid: 3857
-			}
-		});
-
-		// Define the symbology used to display the stops
-		var stopSymbol = {
-			type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
-			style: "cross",
-			size: 15,
-			outline: { // autocasts as new SimpleLineSymbol()
-				width: 6
-			}
-		};
-
-		// Define the symbology used to display the route
-		var routeSymbol = {
-			type: "simple-line", // autocasts as SimpleLineSymbol()
-			color: [0, 0, 255, 0.5],
-			width: 5
-		};
-
-		map = new Map({
-			basemap: "streets",
-			layers: [routeLayer] // Add the route layer to the map
-		});
-
-		var view = new MapView({
-			container: "viewDiv",
-			map,
-			zoom: this.state.zoom,
-			center: [this.state.longitude, this.state.latitude]
-		});
-
-		var search = new Search({ view: view }, "search");
-		search.on("select-result", this.setArrayCoordinates);
-		search.on("select-result", addStop);
-		// si querés probar que se vea el punto sólo al buscar, reemplaza la funcion de arriba por addStop
-		// view.on("click", addStop);
-
-		function addStop(event) {
-			// Add a point at the location of the map click
+	addStop(event) {
+		// Add a point at the location of the map click
+		loadModules(["esri/Graphic"], options)
+		.then(([Graphic]) => {
 			var stop = new Graphic({
 				geometry: event.result.feature.geometry,
-				symbol: stopSymbol
+				symbol: this.stopSymbol
 			});
-			routeLayer.add(stop);
+			this.routeLayer.add(stop);
 
 			// Execute the route task if 2 or more stops are input
-			routeParams.stops.features.push(stop);
-			if (routeParams.stops.features.length >= 2) {
-				routeTask.solve(routeParams).then(showRoute);
+			this.routeParams.stops.features.push(stop);
+			if (this.routeParams.stops.features.length >= 2) {
+				this.routeTask.solve(this.routeParams).then(this.showRoute);
 			}
-		}
-		// Adds the solved route to the map as a graphic
-		function showRoute(data) {
-			var routeResult = data.routeResults[0].route;
-			routeResult.symbol = routeSymbol;
-			routeLayer.add(routeResult);
-		}
-	});
-}
+		});
+	}
+
+	// Adds the solved route to the map as a graphic
+	showRoute(data) {
+		var routeResult = data.routeResults[0].route;
+		routeResult.symbol = this.routeSymbol;
+		this.routeLayer.add(routeResult);
+	}
 
 	render() {
 
