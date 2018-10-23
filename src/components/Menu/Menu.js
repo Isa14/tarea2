@@ -47,7 +47,7 @@ class Menu extends React.Component {
       <div className="tm-offcanvas-bar">
         <div className={classOffcanvas.join(" ").trim()}>
           <div className="tm-burger">
-            <a className="tm-link-burger" onClick={this.handleClick}>
+            <a className="tm-link-burger uk-flex" onClick={this.handleClick}>
               <img className="tm-svg" src="menu.svg" alt="menu" />
             </a>
           </div>
