@@ -10,12 +10,42 @@ class Menu extends React.Component {
     super(props);
     this.state = {
       isMenuOpened: false,
-      name: ""
+      name: "",
+      searching: true,
+      route: false,
+      pdf: false
     };
     this.handleClick = this.handleClick.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleRoute = this.handleRoute.bind(this);
+    this.handlePdf = this.handlePdf.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
+  }
+
+  handleRoute() {
+    this.setState({
+      searching: false,
+      route: true,
+      pdf: false
+    });
+  }
+
+  handlePdf() {
+    this.setState({
+      searching: false,
+      route: false,
+      pdf: true
+    });
+  }
+
+  handleSearch() {
+    this.setState({
+      searching: true,
+      route: false,
+      pdf: false
+    });
   }
 
   dragStart(event) {
@@ -80,9 +110,28 @@ class Menu extends React.Component {
         : "tm-offcanvas-not-expanded"
     ];
 
+    let activeSearching = this.state.searching ? "tm-active" : "";
+    let activeRoute = this.state.route ? "tm-active" : "";
+    let activePdf = this.state.pdf ? "tm-active" : "";
+
     let classCloseOffcanvas = [
       "tm-close-offcanvas",
       this.state.isMenuOpened ? "" : "uk-hidden"
+    ];
+
+    let showSearching = [
+      "tm-content",
+      this.state.searching ? "" : "uk-hidden"
+    ];
+
+    let showRoute = [
+      "tm-content",
+      this.state.route ? "" : "uk-hidden"
+    ];
+
+    let showPdf = [
+      "tm-content",
+      this.state.pdf ? "" : "uk-hidden"
     ];
 
     return (
@@ -94,7 +143,15 @@ class Menu extends React.Component {
             </a>
           </div>
 
-          <div className="tm-content">
+          <div className={showRoute.join(" ").trim()}>
+            PUTA VIDA ROUTA
+          </div>
+
+          <div className={showPdf.join(" ").trim()}>
+            PUTA VIDA PDF
+          </div>
+
+          <div className={showSearching.join(" ").trim()}>
             <div>
               <div id="search" />
             </div>
@@ -157,13 +214,13 @@ class Menu extends React.Component {
             <a onClick={this.handleClick}>
               <img src="cancel.svg" className="tm-svg" alt="svg" />
             </a>
-            <a>
+            <a onClick={this.handleSearch} className={activeSearching}>
               <img src="lupa.svg" className="tm-svg" alt="svg" />
             </a>
-            <a>
+            <a onClick={this.handleRoute} className={activeRoute}>
               <img src="way.svg" className="tm-svg" alt="svg" />
             </a>
-            <a>
+            <a onClick={this.handlePdf} className={activePdf}>
               <img src="pdf.svg" className="tm-svg" alt="svg" />
             </a>
           </div>
