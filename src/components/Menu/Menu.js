@@ -86,6 +86,7 @@ class Menu extends React.Component {
             <a onClick={this.handleClick}><img src="cancel.svg" className="tm-svg" alt="svg" /></a>
             <a><img src="lupa.svg" className="tm-svg" alt="svg" /></a>
             <a><img src="way.svg" className="tm-svg" alt="svg" /></a>
+            <a><img src="pdf.svg" className="tm-svg" alt="svg" /></a>
           </div>
         </div>
       </div>
