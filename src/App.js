@@ -107,16 +107,26 @@ class App extends Component {
     // this.handleRequest = this.handleRequest.bind(this);
     this.setSteps = this.setSteps.bind(this);
     this.quitStep = this.quitStep.bind(this);
-    this.saveSteps = this.saveSteps.bind(this);
+		this.saveSteps = this.saveSteps.bind(this);
+    this.updateSteps = this.updateSteps.bind(this);
 		this.deleteSteps = this.deleteSteps.bind(this);
-  }
+	}
 
-  saveSteps() {
-    let list = this.state.steps;
+	updateSteps(steps) {
+		this.setState({
+			steps: steps
+		});
+	}
+
+  saveSteps(name) {
+    let list = {
+			name: name,
+			route: this.state.steps
+		};
     this.setState({
       steps: [],
       buffer: this.state.buffer.concat(list)
-    });
+		});
 		this.child.current.startSimulation(coords);
 	}
 
@@ -144,6 +154,7 @@ class App extends Component {
 					steps={this.state.steps}
 					quitStep={this.quitStep}
 					saveSteps={this.saveSteps}
+					updateSteps={this.updateSteps}
 					deleteSteps={this.deleteSteps}
 				/>
         {this.state.token ?

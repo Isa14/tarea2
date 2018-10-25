@@ -26,8 +26,25 @@
     margin-top: 42px;
 }
 
+.tm-form{
+    margin-bottom: 25px;
+    width: 220px;
+    margin-left: auto;
+    margin-right: auto;
+    input{
+        padding-left: 20px;
+        border: none;
+        width: 100%;
+        height: 30px;
+        #uk-library > .border-radius(500px);
+        margin-left: -10px;
+    }
+}
+
 .tm-content{
+    width: 290px;
     padding: 25px;
+    overflow-y: auto;
 
     & > div + div{
         margin-top: 25px;
@@ -44,14 +61,23 @@
     }
 
     .tm-list{
-        padding-left: 0;
         list-style-type: none;
-
+        padding: 0;
         & > li + li {
             border-top: 1px solid #444;
         }
 
+        & > li:active{
+            cursor: grabbing;
+            cursor: -moz-grabbing;
+            cursor: -webkit-grabbing;
+        }
+
         & > li{
+            cursor: move; /* fallback if grab cursor is unsupported */
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
             padding: 10px;
             padding-right: 20px;
             color: #fff;
@@ -81,6 +107,19 @@
     width: 100% !important;
     margin-left: auto;
     margin-right: auto;
+    #uk-library > .border-radius(500px);
+
+    .esri-search__container{
+        width: 240px !important;
+    }
+    
+    .esri-input, .esri-search__submit-button{
+        #uk-library > .border-radius(500px);
+    }
+
+    .esri-input{
+        padding-left: 20px;
+    }
 }
 
 .tm-offcanvas-expand{
@@ -116,6 +155,7 @@
         height: 40px; width: 40px;
         min-height: 40px; line-height: 40px;
         display: block;
+        &.tm-active,
         &:hover{
             background-color: #aaa;
         }
@@ -126,7 +166,6 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     padding: 8px;
     background-color: #fff;
-    border-top: solid 1px rgba(50,50,50,0.25);
     .tm-svg{
         height: 16px;
         width: 16px;
@@ -164,4 +203,75 @@
         background: lighten(#D02E1F, 15%) !important;
     }
 
+}
+
+.placeholder {
+  background-color: #333333;
+  height: 21px;
+}
+
+.esri-print{
+    padding: 0;
+    background-color: transparent;
+
+    .esri-print__advanced-options-button{
+        min-height: 32px;
+    }
+    
+    .esri-print__panel-container{
+        background-color: transparent;
+        .esri-print__advanced-options-button{
+            background-color: #fff !important;
+            #uk-library > .border-radius(500px);
+        }
+    }
+
+    .esri-print__export-button{
+        #uk-library > .border-radius(500px);
+    }
+    
+    .esri-print__export-panel-container{
+        div{
+            color: #fff;
+        }
+    }
+
+    .esri-print__header-title{
+        .uk-hidden;
+    }
+
+    .esri-print__export-title{
+        color: #fff;
+    }
+
+    .esri-print__panel-container{
+        input, select{
+            height: 32px;
+            line-height: 32px;
+            #uk-library > .border-radius(500px);
+        }
+        label{
+            color: #fff;
+        }
+
+        input[type="checkbox"]{
+            height: 13px; line-height: 13px;
+        }
+    }
+
+    .esri-print__layout-tab[aria-selected="true"]{
+        color: #fff;
+        background-color: #777;
+        border: none;
+        border-bottom: 1px solid #999;
+    }
+
+    .esri-print__layout-tab{
+        color: #fff;
+        border: none;
+        border-bottom: 1px solid #999;
+        &:hover{
+            background-color: #777;
+        }
+    }
 }

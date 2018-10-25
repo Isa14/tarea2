@@ -179,9 +179,10 @@ class AppGeo extends React.Component {
 			"esri/Map",
 			"esri/views/MapView",
 			"esri/layers/GraphicsLayer",
-			'esri/widgets/Search'
+			'esri/widgets/Print',
+			'esri/widgets/Search',
 		], options)
-		.then(([Map, MapView, GraphicsLayer, Search]) => {
+		.then(([Map, MapView, GraphicsLayer, Print, Search]) => {
 
 			// The stops and route result will be stored in this layer
 			this.routeLayer = new GraphicsLayer();
@@ -198,9 +199,16 @@ class AppGeo extends React.Component {
 				center: [this.state.longitude, this.state.latitude]
 			});
 
-			this.search = new Search({ view: this.view }, "search");
+			this.print = new Print({
+				view: this.view,
+				printServiceUrl: "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export Web Map Task"
+			}, "imprimir");
+
+			// Add widget to the top right corner of the view
+			this.search = new Search({ view: this.view }, "buscar");
 			this.search.on("select-result", this.setArrayCoordinates);
 			this.search.on("select-result", this.addStop);
+
 		});
 	}
 
