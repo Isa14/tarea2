@@ -44,6 +44,7 @@
 .tm-content{
     width: 290px;
     padding: 25px;
+    overflow-y: auto;
 
     & > div + div{
         margin-top: 25px;
@@ -66,7 +67,17 @@
             border-top: 1px solid #444;
         }
 
+        & > li:active{
+            cursor: grabbing;
+            cursor: -moz-grabbing;
+            cursor: -webkit-grabbing;
+        }
+
         & > li{
+            cursor: move; /* fallback if grab cursor is unsupported */
+            cursor: grab;
+            cursor: -moz-grab;
+            cursor: -webkit-grab;
             padding: 10px;
             padding-right: 20px;
             color: #fff;
@@ -197,4 +208,70 @@
 .placeholder {
   background-color: #333333;
   height: 21px;
+}
+
+.esri-print{
+    padding: 0;
+    background-color: transparent;
+
+    .esri-print__advanced-options-button{
+        min-height: 32px;
+    }
+    
+    .esri-print__panel-container{
+        background-color: transparent;
+        .esri-print__advanced-options-button{
+            background-color: #fff !important;
+            #uk-library > .border-radius(500px);
+        }
+    }
+
+    .esri-print__export-button{
+        #uk-library > .border-radius(500px);
+    }
+    
+    .esri-print__export-panel-container{
+        div{
+            color: #fff;
+        }
+    }
+
+    .esri-print__header-title{
+        .uk-hidden;
+    }
+
+    .esri-print__export-title{
+        color: #fff;
+    }
+
+    .esri-print__panel-container{
+        input, select{
+            height: 32px;
+            line-height: 32px;
+            #uk-library > .border-radius(500px);
+        }
+        label{
+            color: #fff;
+        }
+
+        input[type="checkbox"]{
+            height: 13px; line-height: 13px;
+        }
+    }
+
+    .esri-print__layout-tab[aria-selected="true"]{
+        color: #fff;
+        background-color: #777;
+        border: none;
+        border-bottom: 1px solid #999;
+    }
+
+    .esri-print__layout-tab{
+        color: #fff;
+        border: none;
+        border-bottom: 1px solid #999;
+        &:hover{
+            background-color: #777;
+        }
+    }
 }

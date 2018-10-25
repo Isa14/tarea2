@@ -64,7 +64,7 @@ class Menu extends React.Component {
     var data = this.props.steps;
     var from = Number(this.dragged.dataset.id);
     var to = Number(this.over.dataset.id);
-    if (from < to) {
+    if (from <= to) {
       to--;
     }
     data.splice(to, 0, data.splice(from, 1)[0]);
@@ -144,20 +144,21 @@ class Menu extends React.Component {
           </div>
 
           <div className={showRoute.join(" ").trim()}>
-            PUTA VIDA ROUTA
+            <h2>Rutas almacenadas para simular</h2>
           </div>
 
           <div className={showPdf.join(" ").trim()}>
-            PUTA VIDA PDF
+            <h2>Exportar mapa a PDF</h2>
+            <div id="imprimir" />
           </div>
 
           <div className={showSearching.join(" ").trim()}>
             <div>
-              <div id="search" />
+              <div id="buscar" />
             </div>
             <div className="tm-ruta">
               <h2>Paradas de la ruta actual</h2>
-              <ul onDragOver={this.dragOver.bind(this)} className="tm-list">
+              <ul onDragOver={this.dragOver.bind(this)} className="tm-list uk-flex uk-flex-column">
                 {this.props.steps.length > 0 ?
                   this.props.steps.map((step, index) =>
                     <li
