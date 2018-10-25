@@ -2,6 +2,7 @@ import React from "react";
 import "./AppGeo.less";
 import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
+import geolocate from 'mock-geolocation';
 
 var steps = null;
 var routeLayer = null;
@@ -17,63 +18,74 @@ class AppGeo extends React.Component {
 		this.state = {
 			zoom: 14,
 			latitude: 38.889931,
-			longitude: -77.009003
+			longitude: -77.009003,
 		};
+
 		this.updateRouteLayer = this.updateRouteLayer.bind(this);
 		this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
 		this.startSimulation = this.startSimulation.bind(this);
+		this.moveGeolocate = this.moveGeolocate.bind(this);
+		this.toGeographic = this.toGeographic.bind(this);
 	}
 
 	startSimulation() {
 		loadModules(["esri/widgets/Track"], options)
 		.then(([Track]) => {
-			var coords = routeResult.geometry.paths;
-			var geolocate = require('mock-geolocation');
-			stubGeolocation(geolocate, coords);
+			this.currentCoordIndex = 0;
+			this.startRoute = false;
+			this.moveGeolocate();
 
-			var track = new Track({
+			this.track = new Track({
 				view: this.view,
 				goToLocationEnabled: true
 			});
-			this.view.ui.add(track, "top-left");
-			// geolocation simulator
-			function stubGeolocation(geolocate, coords) {
-				var currentCoordIndex = 0;
-				geolocate.use();
-				setInterval(function() {
-					var point = toGeographic(coords[0][currentCoordIndex][0], coords[0][currentCoordIndex][1]);
-					geolocate.change({ lat: point[1], lng: point[0] });
-					currentCoordIndex = (currentCoordIndex + 1) % coords[0].length;
-				}, 1500);
-			}
-
-			function toGeographic(mercatorX_lon, mercatorY_lat) {
-				var coord = [];
-				if (Math.abs(mercatorX_lon) < 180 && Math.abs(mercatorY_lat) < 90) {
-						coord.push(mercatorX_lon);
-						coord.push(mercatorY_lat);
-				} else {
-					if (Math.abs(mercatorX_lon) > 20037508.3427892 || Math.abs(mercatorY_lat) > 20037508.3427892) {
-						coord.push(mercatorX_lon);
-						coord.push(mercatorY_lat);
-					} else {
-						var xMerc = mercatorX_lon;
-						var yMerc = mercatorY_lat;
-						var num3 = xMerc / 6378137.0;
-						var num4 = num3 * 57.295779513082323;
-						var num5 = Math.floor(num4 + 180.0 / 360.0);
-						var num6 = num4 - num5 * 360.0;
-						var num7 = 1.5707963267948966 - 2.0 * Math.atan(Math.exp(-1.0 * yMerc / 6378137.0));
-						mercatorX_lon = num6;
-						mercatorY_lat = num7 * 57.295779513082323;
-						coord.push(mercatorX_lon);
-						coord.push(mercatorY_lat);
-					}
-				}
-				return coord;
-			}
+			this.view.ui.add(this.track, "top-left");
 		});
 	};
+
+	moveGeolocate () {
+		var coords = routeResult.geometry.paths;
+		geolocate.use();
+		this.interval = setInterval(() => {
+			if (this.currentCoordIndex == 1) {
+				this.startRoute = true;
+			}
+			const stop = this.currentCoordIndex === 0 && this.startRoute;
+			if (!stop) {
+				var point = this.toGeographic(coords[0][this.currentCoordIndex][0], coords[0][this.currentCoordIndex][1]);
+				geolocate.change({ lat: point[1], lng: point[0] });
+				if (this.track.tracking) {
+					this.currentCoordIndex = (this.currentCoordIndex + 1) % coords[0].length;
+				}
+			}
+		}, 1500);
+	}
+
+	toGeographic(mercatorX_lon, mercatorY_lat) {
+		var coord = [];
+		if (Math.abs(mercatorX_lon) < 180 && Math.abs(mercatorY_lat) < 90) {
+				coord.push(mercatorX_lon);
+				coord.push(mercatorY_lat);
+		} else {
+			if (Math.abs(mercatorX_lon) > 20037508.3427892 || Math.abs(mercatorY_lat) > 20037508.3427892) {
+				coord.push(mercatorX_lon);
+				coord.push(mercatorY_lat);
+			} else {
+				var xMerc = mercatorX_lon;
+				var yMerc = mercatorY_lat;
+				var num3 = xMerc / 6378137.0;
+				var num4 = num3 * 57.295779513082323;
+				var num5 = Math.floor(num4 + 180.0 / 360.0);
+				var num6 = num4 - num5 * 360.0;
+				var num7 = 1.5707963267948966 - 2.0 * Math.atan(Math.exp(-1.0 * yMerc / 6378137.0));
+				mercatorX_lon = num6;
+				mercatorY_lat = num7 * 57.295779513082323;
+				coord.push(mercatorX_lon);
+				coord.push(mercatorY_lat);
+			}
+		}
+		return coord;
+	}
 
   	updateRouteLayer() {
 	  	loadModules([
