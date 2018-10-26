@@ -31,6 +31,7 @@ class AppGeo extends React.Component {
 	startSimulation() {
 		loadModules(["esri/widgets/Track"], options)
 		.then(([Track]) => {
+
 			this.currentCoordIndex = 0;
 			this.startRoute = false;
 			this.moveGeolocate();
