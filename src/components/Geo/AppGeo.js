@@ -17,7 +17,7 @@
 		constructor(props) {
 			super(props);
 			this.state = {
-				zoom: 14,
+				zoom: 4,
 				latitude: 38.889931,
 				longitude: -77.009003,
 				speedGlobal: 0
@@ -46,8 +46,12 @@
 		};
 
 		moveGeolocate () {
-			loadModules(["esri/geometry/support/webMercatorUtils", "esri/geometry/Point", "esri/widgets/Popup"], options)
-			.then(([webMercatorUtils, Point, Popup]) => {
+			loadModules([
+				"esri/geometry/support/webMercatorUtils",
+				"esri/geometry/Point",
+				"esri/Graphic"
+		], options)
+			.then(([webMercatorUtils, Point, Graphic]) => {
 				var coords = routeResult.geometry.paths;
 				geolocate.use();
 				this.interval = setInterval(() => {
@@ -60,8 +64,6 @@
 					if (!stop) {
 						var speed = 0;
 						var actualPoint = webMercatorUtils.xyToLngLat(coords[0][this.currentCoordIndex][0], coords[0][this.currentCoordIndex][1]);
-						geolocate.change({ lat: actualPoint[1], lng: actualPoint[0] });
-
 						if (this.currentCoordIndex > 0) {
 							var nextPoint = webMercatorUtils.xyToLngLat(coords[0][this.currentCoordIndex - 1][0], coords[0][this.currentCoordIndex - 1][1]);
 							var point1 = new Point(actualPoint[0], actualPoint[1], { wkid: 3857 });
@@ -73,13 +75,31 @@
 							let decimals = (Math.floor(Math.random() * 100) + 1) / 100;
 							speed = 159 + decimals;
 						}
-						this.setState({
-							speedGlobal: speed.toFixed(2)
-						});
+						this.setState({ speedGlobal: speed.toFixed(2) });
 						var speedStyle = speed - 80;
-						var tmSpeed = "translate(-50%, 0) rotate(" + speedStyle + 'deg)';
+						var tmSpeed = "translate(-50%, 0) rotate(" + speedStyle + "deg)";
 
-						document.getElementById("speed").style.transform = tmSpeed;
+						var red = Math.trunc(255 - speed);
+						var green = Math.trunc(95 + speed);
+
+						var typeSymbol = "simple-marker"; // asumo que acá se va a cambiar así que lo dejo por ahora así
+						var stopSymbol = {
+							type: typeSymbol, // autocasts as new SimpleMarkerSymbol()
+							style: "circle",
+							color: [red, green, 0, 1],
+							size: 20,
+							outline: { // autocasts as new SimpleLineSymbol()
+								width: 1,
+								color: [255, 255, 255, 1]
+							}
+						};
+
+						geolocate.change({ lat: actualPoint[1], lng: actualPoint[0], symbol: stopSymbol });
+						this.track.graphic.symbol = stopSymbol;
+
+						if (document.getElementById("speed")) {
+							document.getElementById("speed").style.transform = tmSpeed;
+						}
 
 						popup.open({
 							title: "Información de la simulación",
