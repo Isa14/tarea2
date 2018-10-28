@@ -155,7 +155,6 @@
         "no-else-return": "off",
         "no-empty-function": "error",
         "no-eq-null": "off",
-        "no-eval": "error",
         "no-extend-native": "error",
         "no-extra-bind": "error",
         "no-extra-label": "error",

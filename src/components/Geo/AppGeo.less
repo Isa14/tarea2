@@ -11,3 +11,66 @@
     width: 100vw;
     overflow: hidden;
 }
+
+.tm-speed{
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 90%; height: 180px;
+  overflow: hidden;
+  #uk-library > .translate(-50%, 0);
+
+  p{
+      margin: 0;
+  }
+  
+  & > div{
+      position: relative;
+      background: url("/control.png") center bottom no-repeat;
+      background-size: contain;
+      height: 80px;
+      margin-top: 15px;
+      width: 100%;
+      text-align: left;
+      &:before{
+        content: '';
+        width: 20px;
+        height: 20px;
+        background-color: #000;
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        #uk-library > .translate(-50%, 0);
+        #uk-library > .border-radius(500px);
+    }
+      & > div{
+        width: 0; 
+        height: 0; 
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 50px solid #000;
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        #uk-library > .transition(all 6s);
+        transform-origin: 50% 100%;
+        transform: translate(-50%, 0) rotate(-80deg);
+      }
+  }
+}
+
+.esri-view{
+    & > div {
+        & > .tm-speed{
+            .uk-hidden;
+        }
+    }
+}
+
+.esri-popup__main-container{
+    max-height: 220px;
+    max-width: 290px;
+    .esri-popup__content{
+        height: 160px;
+    }
+}
