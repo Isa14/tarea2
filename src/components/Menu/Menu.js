@@ -11,6 +11,7 @@ class Menu extends React.Component {
     this.state = {
       isMenuOpened: false,
       name: "",
+      buffer: "",
       searching: true,
       route: false,
       pdf: false
@@ -22,6 +23,7 @@ class Menu extends React.Component {
     this.handleRoute = this.handleRoute.bind(this);
     this.handlePdf = this.handlePdf.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.handleBuffer = this.handleBuffer.bind(this);
   }
 
   handleRoute() {
@@ -102,6 +104,14 @@ class Menu extends React.Component {
     this.setState({ name: event.target.value });
   }
 
+  handleBuffer(event) {
+    this.setState({ buffer: event.target.value });
+  }
+
+  handleSimulate(index) {
+    this.props.simulateRoute(index);
+  }
+
   render() {
     let classOffcanvas = [
       "tm-offcanvas uk-flex",
@@ -145,6 +155,20 @@ class Menu extends React.Component {
 
           <div className={showRoute.join(" ").trim()}>
             <h2>Rutas almacenadas para simular</h2>
+            <div className="tm-form">
+              <form>
+                <input required type="text" name="buffer" placeholder="Buffer *" onChange={this.handleBuffer} />
+              </form>
+            </div>
+            <ul className="tm-list">
+              {
+                this.props.routes.length > 0
+                ? this.props.routes.map((route, index) =>
+                  <li key={index}>{route.name}<a onClick={this.handleSimulate.bind(this, index)}><img src="way.svg" className="tm-svg" alt="svg" /></a></li>
+                )
+                : <p>No hay rutas almacenadas en el sistema para simular</p>
+              }
+            </ul>
           </div>
 
           <div className={showPdf.join(" ").trim()}>
@@ -153,12 +177,13 @@ class Menu extends React.Component {
           </div>
 
           <div className={showSearching.join(" ").trim()}>
+            <h2>Generador de ruta</h2>
             <div>
               <div id="buscar" />
             </div>
             <div className="tm-ruta">
               <h2>Paradas de la ruta actual</h2>
-              <ul onDragOver={this.dragOver.bind(this)} className="tm-list uk-flex uk-flex-column">
+              <ul onDragOver={this.dragOver.bind(this)} className="tm-list tm-list-drag uk-flex uk-flex-column">
                 {this.props.steps.length > 0 ?
                   this.props.steps.map((step, index) =>
                     <li
@@ -178,7 +203,7 @@ class Menu extends React.Component {
                   <p>Aún no ha seleccionado ninguna parada para su ruta.</p>
                 }
               </ul>
-              {this.props.steps.length > 0 ?
+              {this.props.steps.length > 1 ?
                 <div>
                   <div className="tm-form">
                     <form>
@@ -219,7 +244,7 @@ class Menu extends React.Component {
               <img src="lupa.svg" className="tm-svg" alt="svg" />
             </a>
             <a onClick={this.handleRoute} className={activeRoute}>
-              <img src="way.svg" className="tm-svg" alt="svg" />
+              <img src="location.svg" className="tm-svg" alt="svg" />
             </a>
             <a onClick={this.handlePdf} className={activePdf}>
               <img src="pdf.svg" className="tm-svg" alt="svg" />
@@ -233,10 +258,12 @@ class Menu extends React.Component {
 
 Menu.propTypes = {
     steps: PropTypes.array,
+    routes: PropTypes.array,
     quitStep: PropTypes.func,
     deleteSteps: PropTypes.func,
     saveSteps: PropTypes.func,
-    updateSteps: PropTypes.func
+    updateSteps: PropTypes.func,
+    simulateRoute: PropTypes.func
 };
 
 
