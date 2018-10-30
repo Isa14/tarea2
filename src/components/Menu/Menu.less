@@ -59,7 +59,28 @@
         font-size: 16px; line-height: 20px;
     }
 
+    .tm-list-route{
+        &:before{
+            content: '';
+            position: absolute;
+            width: 14px;
+            border: 14px solid transparent;
+            padding-left: 14x !important;
+            border-image-source: url("http://siniestro.xyz/pis/list.png");
+            border-image-repeat: repeat;
+            border-image-slice: 14;
+            top: 10px;
+            bottom: 10px;
+            left: -18px;
+            border-right: none; 
+        }
+    }
+
     .tm-list-drag{
+        position: relative;
+        padding-left: 14px;
+        display: block;
+
          & > li:active{
             cursor: grabbing;
             cursor: -moz-grabbing;
