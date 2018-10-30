@@ -139,6 +139,11 @@ class Menu extends React.Component {
       this.state.route ? "" : "uk-hidden"
     ];
 
+    let listDrag = [
+      "tm-list tm-list-drag",
+      this.props.steps.length > 1 ? "tm-list-route" : ""
+    ];
+
     let showPdf = [
       "tm-content",
       this.state.pdf ? "" : "uk-hidden"
@@ -183,7 +188,7 @@ class Menu extends React.Component {
             </div>
             <div className="tm-ruta">
               <h2>Paradas de la ruta actual</h2>
-              <ul onDragOver={this.dragOver.bind(this)} className="tm-list tm-list-drag uk-flex uk-flex-column">
+              <ul onDragOver={this.dragOver.bind(this)} className={listDrag.join(" ").trim()}>
                 {this.props.steps.length > 0 ?
                   this.props.steps.map((step, index) =>
                     <li
