@@ -110,6 +110,8 @@ class Menu extends React.Component {
 
   handleSimulate(index) {
     this.props.simulateRoute(index);
+    console.log(this.state.buffer);
+    this.props.getBufferSize(this.state.buffer);
   }
 
   render() {
@@ -268,7 +270,8 @@ Menu.propTypes = {
     deleteSteps: PropTypes.func,
     saveSteps: PropTypes.func,
     updateSteps: PropTypes.func,
-    simulateRoute: PropTypes.func
+    simulateRoute: PropTypes.func,
+    getBufferSize: PropTypes.func
 };
 
 

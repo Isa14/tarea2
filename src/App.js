@@ -11,7 +11,8 @@ class App extends Component {
       token: process.env.REACT_APP_ESRI_TOKEN,
       steps: [],
       buffer: [],
-      route: null
+      route: null,
+      bufferSize: 0
     };
     // this.handleRequest = this.handleRequest.bind(this);
     this.setSteps = this.setSteps.bind(this);
@@ -20,6 +21,13 @@ class App extends Component {
     this.updateSteps = this.updateSteps.bind(this);
     this.deleteSteps = this.deleteSteps.bind(this);
     this.simulateRoute = this.simulateRoute.bind(this);
+    this.getBufferSize = this.getBufferSize.bind(this);
+  }
+
+  getBufferSize(size) {
+    this.setState({
+      bufferSize: size
+    });
   }
 
   updateSteps(steps) {
@@ -40,16 +48,20 @@ class App extends Component {
   }
 
   simulateRoute(index) {
-		let route = this.state.buffer[index].route;
-		this.setState({
-			steps: route
+    let route = this.state.buffer[index].route;
+    this.setState({
+      steps: route
     });
 
     if (document.getElementsByClassName("esri-track").length > 0) {
-      document.getElementsByClassName("esri-track")[0].parentNode.removeChild(document.getElementsByClassName("esri-track")[0]);
+      document
+        .getElementsByClassName("esri-track")[0]
+        .parentNode.removeChild(
+          document.getElementsByClassName("esri-track")[0]
+        );
     }
     this.child.current.startSimulation();
-	}
+  }
 
   deleteSteps() {
     this.setState({
@@ -77,8 +89,9 @@ class App extends Component {
           saveSteps={this.saveSteps}
           updateSteps={this.updateSteps}
           deleteSteps={this.deleteSteps}
-					routes={this.state.buffer}
-					simulateRoute={this.simulateRoute}
+          routes={this.state.buffer}
+          simulateRoute={this.simulateRoute}
+          getBufferSize={this.getBufferSize}
         />
         {this.state.token ?
           <AppGeo
@@ -86,6 +99,7 @@ class App extends Component {
             token={this.state.token}
             setSteps={this.setSteps}
             steps={this.state.steps}
+            buffer={this.state.bufferSize}
           />
         :
           <div />
