@@ -7,7 +7,7 @@
 	var steps = null;
 	var routeLayer = null;
 	var routeResult = null;
-	var time = 5000;
+	var time = 10000;
 
 	const options = {
 	url: 'https://js.arcgis.com/4.9/'
@@ -20,13 +20,146 @@
 				zoom: 4,
 				latitude: 38.889931,
 				longitude: -77.009003,
-				speedGlobal: 0
+				speedGlobal: 0,
+				totalPop: 0
 			};
 
 			this.updateRouteLayer = this.updateRouteLayer.bind(this);
 			this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
 			this.startSimulation = this.startSimulation.bind(this);
 			this.moveGeolocate = this.moveGeolocate.bind(this);
+			this.createPoygon = this.createPoygon.bind(this);
+			this.loadCountiesLayer = this.loadCountiesLayer.bind(this);
+			this.getTotalPopulation = this.getTotalPopulation.bind(this);
+			this.intersectRings = this.intersectRings.bind(this);
+			this.sumPopulation = this.sumPopulation.bind(this);
+			this.getAreas = this.getAreas.bind(this);
+			this.metresToMiles = this.metresToMiles.bind(this);
+		}
+
+		metresToMiles(metres) {
+			return metres * 0.000621371192;
+	   }
+
+		loadCountiesLayer() {
+			loadModules(["esri/layers/FeatureLayer"], options)
+			.then(([FeatureLayer]) => {
+				this.countiesFeatureLayer = new FeatureLayer({
+					url: "http://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_1990-2000_Population_Change/MapServer/3"
+				});
+			});
+		};
+
+		getTotalPopulation() {
+			loadModules(["esri/tasks/support/Query"], options)
+			.then(([Query]) => {
+				this.map.layers.add(this.countiesFeatureLayer);
+				var query = this.countiesFeatureLayer.createQuery();
+				query.geometry = this.circleGeometry;
+				query.spatialRelationship = 'intersects';
+				query.returnGeometry = true;
+				query.outFields = ["*"];
+
+				this.countiesFeatureLayer.queryFeatures(query)
+				.then(response => this.intersectRings(response));
+			});
+		};
+
+		intersectRings(response) {
+			loadModules(["esri/tasks/support/Query", "esri/request", "esri/symbols/SimpleFillSymbol", "esri/Graphic"], options)
+			.then(([Query, esriRequest, SimpleFillSymbol, Graphic, GeometryService]) => {
+				var countiesRings = [];
+				var arrayLength = response.features.length;
+				this.intersectedCounties = response.features;
+				this.lala = [];
+				for (var i = 0; i < arrayLength; i++) {
+					// countiesRings.push({ rings: this.intersectedCounties[i].geometry.rings });
+					countiesRings.push(this.intersectedCounties[i].geometry);
+					var fillSymbol = new SimpleFillSymbol({
+						color: [60, 179, 113, 0.3],
+						outline: {
+						  color: [255, 255, 255],
+						  width: 1
+						}
+					});
+					  // Agregar el simbolo y la geometria a un grafico nuevo
+					  this.lala[i] = new Graphic({
+						geometry: this.intersectedCounties[i].geometry,
+						symbol: fillSymbol
+					  });
+					  // Agregar el grafico a la vista
+					  this.view.graphics.add(this.lala[i]);
+				}
+
+				var fillSymbolCircle = new SimpleFillSymbol({
+					color: [227, 139, 79, 0.8],
+					outline: {
+					  color: [255, 255, 255],
+					  width: 1
+					}
+				});
+				  // Agregar el simbolo y la geometria a un grafico nuevo
+				this.polygonGraphic = new Graphic({
+					geometry: this.circleGeometry,
+					symbol: fillSymbolCircle
+				});
+				// Agregar el grafico a la vista
+				this.view.graphics.add(this.polygonGraphic);
+
+				var options_esri = {
+					query: {
+						f: 'json',
+						geometries: JSON.stringify({ geometryType: "esriGeometryPolygon", geometries: countiesRings }),
+						geometry: JSON.stringify({ geometryType: "esriGeometryPolygon", geometry: { rings: this.circleGeometry.rings } }),
+						sr: 4326
+					},
+					responseType: 'json'
+				};
+				var url = 'http://tasks.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer/intersect';
+				esriRequest(url, options_esri).then(response => this.getAreas(response));
+			});
+		}
+
+		getAreas(response) {
+			loadModules(["esri/request"], options)
+			.then(([esriRequest]) => {
+				var ringsForAreas = {
+					query: {
+						f: 'json',
+						polygons: JSON.stringify(response.data.geometries),
+						sr: 4326,
+						calculationType: 'preserveShape'
+					},
+					responseType: 'json'
+				};
+				var url = 'http://tasks.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer/areasAndLengths';
+				esriRequest(url, ringsForAreas).then(response => this.sumPopulation(response));
+			});
+		};
+
+		sumPopulation(response) {
+			var total = 0;
+			var largoRings = response.data.areas.length;
+			for (var i = 0; i < largoRings; i++) {
+				var areaMiles = this.metresToMiles(response.data.areas[i]);
+				var intersectedPOP = (areaMiles * this.intersectedCounties[i].attributes.TOTPOP_CY) / this.intersectedCounties[i].attributes.LANDAREA;
+				total = total + Math.ceil(intersectedPOP);
+			}
+
+			this.setState({ totalPop: total });
+		};
+
+		createPoygon(lat, lng) {
+			loadModules(["esri/geometry/Circle", "esri/geometry/Point", "esri/symbols/SimpleFillSymbol", "esri/Graphic"], options)
+			.then(([Circle, Point, SimpleFillSymbol, Graphic]) => {
+				var point = new Point([lng, lat]);
+				this.circleGeometry = new Circle({
+					center: point,
+					geodesic: true,
+					radius: 20000
+				});
+				this.getTotalPopulation();
+			});
 		}
 
 		startSimulation() {
@@ -58,12 +191,13 @@
 					if (this.currentCoordIndex == 1) {
 						this.startRoute = true;
 					}
-
 					const stop = this.currentCoordIndex === 0 && this.startRoute;
 					var popup = this.view.popup;
 					if (!stop) {
 						var speed = 0;
 						var actualPoint = webMercatorUtils.xyToLngLat(coords[0][this.currentCoordIndex][0], coords[0][this.currentCoordIndex][1]);
+						this.view.graphics.remove(this.polygonGraphic);
+						this.createPoygon(actualPoint[1], actualPoint[0]);
 						if (this.currentCoordIndex > 0) {
 							var nextPoint = webMercatorUtils.xyToLngLat(coords[0][this.currentCoordIndex - 1][0], coords[0][this.currentCoordIndex - 1][1]);
 							var point1 = new Point(actualPoint[0], actualPoint[1], { wkid: 3857 });
@@ -262,6 +396,7 @@
 				this.search = new Search({ view: this.view }, "buscar");
 				this.search.on("select-result", this.setArrayCoordinates);
 				this.search.on("select-result", this.addStop);
+				this.loadCountiesLayer();
 			});
 		}
 
@@ -270,7 +405,7 @@
 				<div id="viewDiv">
 					<div id="id-speed" className="tm-speed">
 						<p>Estado actual: </p>
-						<p>Población en el buffer: </p>
+						<p>Población en el buffer: {this.state.totalPop} </p>
 						<p><strong>Velocidad actual:</strong> {this.state.speedGlobal} km/h </p>
 						<div>
 							<div id="speed"></div>
