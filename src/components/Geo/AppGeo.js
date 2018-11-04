@@ -172,7 +172,7 @@
 
 				this.track = new Track({
 					view: this.view,
-					goToLocationEnabled: true
+					goToLocationEnabled: false
 				});
 				this.view.ui.add(this.track, "top-left");
 			});
@@ -193,6 +193,7 @@
 					}
 					const stop = this.currentCoordIndex === 0 && this.startRoute;
 					var popup = this.view.popup;
+					popup.actions.items[0].visible = false;
 					if (!stop) {
 						var speed = 0;
 						var actualPoint = webMercatorUtils.xyToLngLat(coords[0][this.currentCoordIndex][0], coords[0][this.currentCoordIndex][1]);
@@ -227,7 +228,6 @@
 								color: [255, 255, 255, 1]
 							}
 						};
-
 						geolocate.change({ lat: actualPoint[1], lng: actualPoint[0], symbol: stopSymbol });
 						this.track.graphic.symbol = stopSymbol;
 
