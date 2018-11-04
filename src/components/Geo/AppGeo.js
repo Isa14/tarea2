@@ -210,7 +210,6 @@ class AppGeo extends React.Component {
 							var point2 = new Point(nextPoint[0], nextPoint[1], { wkid: 4326 });
 							speed = point1.distance(point2) * 100 * 10 * 60;
 						}
-						console.log(coords[0][this.currentCoordIndex][0] + ' uzumaki ' + coords[0][this.currentCoordIndex][1]);
 
 						if (speed > 160) {
 							let decimals = (Math.floor(Math.random() * 100) + 1) / 100;
@@ -374,7 +373,6 @@ class AppGeo extends React.Component {
 		.then(([Graphic]) => {
 
 		this.map.layers.removeAll();
-		console.log('hola');
 		var routeSymbol = {
 			type: "simple-line", // autocasts as SimpleLineSymbol()
 			color: [0, 0, 255, 0.5],
@@ -429,9 +427,6 @@ class AppGeo extends React.Component {
 				zoom: this.state.zoom,
 				center: [this.state.longitude, this.state.latitude]
 			});
-
-			console.log(this.map);
-			console.log(this.view);
 
 			this.print = new Print({
 				view: this.view,
