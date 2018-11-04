@@ -26,6 +26,7 @@ class AppGeo extends React.Component {
 		};
 
 		this.updateRouteLayer = this.updateRouteLayer.bind(this);
+		this.simulationLayer = this.simulationLayer.bind(this);
 		this.setArrayCoordinates = this.setArrayCoordinates.bind(this);
 		this.startSimulation = this.startSimulation.bind(this);
 		this.moveGeolocate = this.moveGeolocate.bind(this);
@@ -187,17 +188,8 @@ class AppGeo extends React.Component {
 			"esri/Graphic"
 		], options)
 			.then(([webMercatorUtils, Point, Graphic]) => {
-				var routeSymbol = {
-					type: "simple-line", // autocasts as SimpleLineSymbol()
-					color: [0, 0, 255, 0.5],
-					width: 5
-				};
 				var coords = this.props.routeSimulation.paths;
-				console.log(coords);
-				coords.symbol = routeSymbol;
-				this.map.layers.removeAll();
-				routeLayer.add(coords);
-				this.map.layers.add(routeLayer);
+
 				geolocate.use();
 				this.interval = setInterval(() => {
 					if (this.currentCoordIndex == 1) {
@@ -208,7 +200,7 @@ class AppGeo extends React.Component {
 
 					if (!stop) {
 						var speed = 0;
-						var actualPoint = webMercatorUtils.xyToLngLat(coords[0][this.currentCoordIndex][0], coords[0][this.currentCoordIndex][1]);
+						var actualPoint = coords[0][this.currentCoordIndex];
 						this.view.graphics.remove(this.polygonGraphic);
 						this.createPoygon(actualPoint[1], actualPoint[0]);
 						if (this.currentCoordIndex > 0) {
@@ -217,6 +209,7 @@ class AppGeo extends React.Component {
 							var point2 = new Point(nextPoint[0], nextPoint[1], { wkid: 4326 });
 							speed = point1.distance(point2) * 100 * 10 * 60;
 						}
+						console.log(coords[0][this.currentCoordIndex][0] + ' uzumaki ' + coords[0][this.currentCoordIndex][1]);
 
 						if (speed > 160) {
 							let decimals = (Math.floor(Math.random() * 100) + 1) / 100;
@@ -327,7 +320,7 @@ class AppGeo extends React.Component {
 				this.routeParams = new RouteParameters({
 					stops: new FeatureSet(),
 					outSpatialReference: { // autocasts as new SpatialReference()
-						wkid: 3857
+						wkid: 4326
 					}
 				});
 
@@ -362,8 +355,7 @@ class AppGeo extends React.Component {
 		routeResult = data.routeResults[0].route;
 		routeResult.symbol = routeSymbol;
 		routeLayer.add(routeResult);
-		console.log(routeResult.geometry.paths);
-		this.props.getRoute(routeResult);
+		this.props.getRoute(data.routeResults[0].route);
 	}
 
 	setArrayCoordinates(event) {
@@ -376,10 +368,34 @@ class AppGeo extends React.Component {
 		this.props.setSteps(puntos);
 	}
 
+	simulationLayer() {
+		loadModules(["esri/Graphic"], options)
+		.then(([Graphic]) => {
+
+		this.map.layers.removeAll();
+		console.log('hola');
+		var routeSymbol = {
+			type: "simple-line", // autocasts as SimpleLineSymbol()
+			color: [0, 0, 255, 0.5],
+			width: 5
+		};
+		var simulation = new Graphic({
+			geometry: this.props.routeSimulation,
+			symbol: routeSymbol
+		});
+		routeLayer.add(simulation);
+		this.map.layers.add(routeLayer);
+	});
+}
+
 	componentDidUpdate() {
 		if (steps !== this.props.steps) {
 			steps = this.props.steps;
 			this.updateRouteLayer();
+		}
+
+		if (this.props.routeSimulation !== null) {
+			this.simulationLayer();
 		}
 
 		if (this.props.buffer && this.props.buffer !== buffer) {
@@ -395,34 +411,38 @@ class AppGeo extends React.Component {
 			'esri/widgets/Print',
 			'esri/widgets/Search',
 		], options)
-			.then(([Map, MapView, GraphicsLayer, Print, Search]) => {
+		.then(([Map, MapView, GraphicsLayer, Print, Search]) => {
 
-				// The stops and route result will be stored in this layer
-				this.routeLayer = new GraphicsLayer();
+			// The stops and route result will be stored in this layer
+			this.routeLayer = new GraphicsLayer();
 
-				this.map = new Map({
-					basemap: "streets",
-					layers: [this.routeLayer] // Add the route layer to the map
-				});
-
-				this.view = new MapView({
-					container: "viewDiv",
-					map: this.map,
-					zoom: this.state.zoom,
-					center: [this.state.longitude, this.state.latitude]
-				});
-
-				this.print = new Print({
-					view: this.view,
-					printServiceUrl: "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export Web Map Task"
-				}, "imprimir");
-
-				// Add widget to the top right corner of the view
-				this.search = new Search({ view: this.view }, "buscar");
-				this.search.on("select-result", this.setArrayCoordinates);
-				this.search.on("select-result", this.addStop);
-				this.loadCountiesLayer();
+			this.map = new Map({
+				basemap: "streets",
+				wkid: 4326,
+				layers: [this.routeLayer] // Add the route layer to the map
 			});
+
+			this.view = new MapView({
+				container: "viewDiv",
+				map: this.map,
+				zoom: this.state.zoom,
+				center: [this.state.longitude, this.state.latitude]
+			});
+
+			console.log(this.map);
+			console.log(this.view);
+
+			this.print = new Print({
+				view: this.view,
+				printServiceUrl: "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export Web Map Task"
+			}, "imprimir");
+
+			// Add widget to the top right corner of the view
+			this.search = new Search({ view: this.view }, "buscar");
+			this.search.on("select-result", this.setArrayCoordinates);
+			this.search.on("select-result", this.addStop);
+			this.loadCountiesLayer();
+		});
 	}
 
 	render() {

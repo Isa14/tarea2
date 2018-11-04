@@ -114,7 +114,7 @@ class App extends Component {
     loadModules(["esri/request"], options).then(([esriRequest]) => {
       var urlDelete = "http://sampleserver5.arcgisonline.com/arcgis/rest/services/LocalGovernment/Events/FeatureServer/0/deleteFeatures";
       esriRequest(urlDelete, {
-        body: { f: "json", where: "eventid=20180514" },
+        body: { f: "json", where: "eventid=20180514", sr: 4326 },
         method: "POST"
       });
       var geometries = [];
@@ -131,7 +131,7 @@ class App extends Component {
       var payloadGeometries = JSON.stringify(geometries);
       var urlGeometry = "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Events/FeatureServer/0/addFeatures";
       esriRequest(urlGeometry, {
-        body: { f: "json", features: payloadGeometries },
+        body: { f: "json", features: payloadGeometries, sr: 4326 },
         method: "POST"
       });
     });
@@ -147,7 +147,7 @@ class App extends Component {
       };
 
       var payload = JSON.stringify(features);
-
+      console.log(payload);
       var url = "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Recreation/FeatureServer/1/addFeatures";
       esriRequest(url, {
         body: { f: "json", features: payload },
