@@ -9,6 +9,7 @@ var routeLayer = null;
 var routeResult = null;
 var time = 11000;
 var buffer = 1000;
+var routeSimulation = null;
 
 const options = {
 	url: 'https://js.arcgis.com/4.9/'
@@ -77,7 +78,7 @@ class AppGeo extends React.Component {
 			this.countiesPolygons = [];
 			for (var index = 0; index < arrayLength; index++) {
 				// countiesRings.push({ rings: this.intersectedCounties[i].geometry.rings });
-				countiesRings.push(this.intersectedCounties[index].geometry);
+				countiesRings.push({ rings: this.intersectedCounties[index].geometry.rings });
 				var fillSymbol = new SimpleFillSymbol({
 					color: [60, 179, 113, 0.3],
 					outline: {
@@ -95,7 +96,7 @@ class AppGeo extends React.Component {
 			}
 
 			var fillSymbolCircle = new SimpleFillSymbol({
-				color: [227, 139, 79, 0.8],
+				color: [227, 139, 79, 0.3],
 				outline: {
 					color: [255, 255, 255],
 					width: 1
@@ -171,24 +172,22 @@ class AppGeo extends React.Component {
 			.then(([Track]) => {
 
 				this.currentCoordIndex = 0;
-				this.startRoute = false;
 				this.moveGeolocate();
 
 				this.track = new Track({
 					view: this.view,
-					goToLocationEnabled: false
+					goToLocationEnabled: true
 				});
 				this.view.ui.add(this.track, "top-left");
 			});
-	};
+		};
 
-	moveGeolocate() {
-		loadModules([
-			"esri/geometry/support/webMercatorUtils",
-			"esri/geometry/Point",
-			"esri/Graphic"
-		], options)
-			.then(([webMercatorUtils, Point, Graphic]) => {
+		moveGeolocate() {
+			loadModules([
+				"esri/geometry/Point",
+				"esri/Graphic"
+			], options)
+			.then(([Point, Graphic]) => {
 				var coords = this.props.routeSimulation.paths;
 
 				geolocate.use();
@@ -197,70 +196,72 @@ class AppGeo extends React.Component {
 						this.startRoute = true;
 					}
 					const stop = this.currentCoordIndex === 0 && this.startRoute;
-					var popup = this.view.popup;
-
 					if (!stop) {
-						var speed = 0;
 						var actualPoint = coords[0][this.currentCoordIndex];
-						this.view.graphics.remove(this.polygonGraphic);
-						this.createPoygon(actualPoint[1], actualPoint[0]);
-						if (this.currentCoordIndex > 0) {
-							var nextPoint = webMercatorUtils.xyToLngLat(coords[0][this.currentCoordIndex - 1][0], coords[0][this.currentCoordIndex - 1][1]);
-							var point1 = new Point(actualPoint[0], actualPoint[1], { wkid: 4326 });
-							var point2 = new Point(nextPoint[0], nextPoint[1], { wkid: 4326 });
-							speed = point1.distance(point2) * 100 * 10 * 60;
-						}
-
-						if (speed > 160) {
-							let decimals = (Math.floor(Math.random() * 100) + 1) / 100;
-							speed = 159 + decimals;
-						}
-						this.setState({ speedGlobal: speed.toFixed(2) });
-						var speedStyle = speed - 80;
-						var tmSpeed = "translate(-50%, 0) rotate(" + speedStyle + "deg)";
-
-						var red = Math.trunc(255 - speed);
-						var green = Math.trunc(95 + speed);
-
-						var typeSymbol = "simple-marker"; // asumo que acá se va a cambiar así que lo dejo por ahora así
-						var stopSymbol = {
-							type: typeSymbol, // autocasts as new SimpleMarkerSymbol()
-							style: "circle",
-							color: [red, green, 0, 1],
-							size: 20,
-							outline: { // autocasts as new SimpleLineSymbol()
-								width: 1,
-								color: [255, 255, 255, 1]
-							}
-						};
-
-						geolocate.change({ lat: actualPoint[1], lng: actualPoint[0] });
-						this.track.graphic.symbol = stopSymbol;
-						var location = this.track.graphic;
-						this.view.goTo({
-							scale: buffer * 50,
-							center: location
-						});
-						this.view.graphics.add(new Graphic({ geometry: this.track.graphic.geometry, symbol: stopSymbol }));
-
-						if (document.getElementById("speed")) {
-							document.getElementById("speed").style.transform = tmSpeed;
-						}
-
-						popup.open({
-							title: "Información de la simulación",
-							location: "top-right",
-							content: document.getElementById("id-speed")
-						});
-
-						// Watch currentDockPosition of the popup and open the
-						// popup at the specified position.
-						popup.watch("currentDockPosition", function (value) {
-							popup.visible = true;
-						});
-
 						if (this.track.tracking) {
+							var speed = 0;
+							this.view.graphics.remove(this.polygonGraphic);
+							if (this.currentCoordIndex > 0) {
+								this.createPoygon(actualPoint[1], actualPoint[0]);
+								var nextPoint = coords[0][this.currentCoordIndex - 1];
+								var point1 = new Point(actualPoint[0], actualPoint[1], { wkid: 4326 });
+								var point2 = new Point(nextPoint[0], nextPoint[1], { wkid: 4326 });
+								speed = point1.distance(point2) * 100 * 5 * 60;
+							}
+							var popup = this.view.popup;
+							if (speed > 160) {
+								let decimals = (Math.floor(Math.random() * 100) + 1) / 100;
+								speed = 159 + decimals;
+							}
+							this.setState({ speedGlobal: speed.toFixed(2) });
+							var speedStyle = speed - 80;
+							var tmSpeed = "translate(-50%, 0) rotate(" + speedStyle + "deg)";
+
+							var red = Math.trunc(255 - speed);
+							var green = Math.trunc(speed);
+
+							var typeSymbol = "simple-marker"; // asumo que acá se va a cambiar así que lo dejo por ahora así
+							var stopSymbol = {
+								type: typeSymbol, // autocasts as new SimpleMarkerSymbol()
+								style: "circle",
+								color: [red, green, 0, 1],
+								size: 20,
+								outline: { // autocasts as new SimpleLineSymbol()
+									width: 1,
+									color: [255, 255, 255, 1]
+								}
+							};
+							this.view.graphics.removeAll();
+
+							geolocate.change({ lat: actualPoint[1], lng: actualPoint[0] });
+							this.track.graphic.symbol = stopSymbol;
+							var location = this.track.graphic;
+
+							this.view.goTo({
+								scale: buffer * 50,
+								center: location
+							});
+							this.view.graphics.add(new Graphic({ geometry: this.track.graphic.geometry, symbol: stopSymbol }));
+
+							if (document.getElementById("speed")) {
+								document.getElementById("speed").style.transform = tmSpeed;
+							}
+							popup.open({
+								title: "Información de la simulación",
+								content: document.getElementById("id-speed"),
+								position: this.view.center
+							});
+
+							popup.watch("currentDockPosition", function (value) {
+								popup.visible = true;
+							});
 							this.currentCoordIndex = (this.currentCoordIndex + 1) % coords[0].length;
+						} else {
+							geolocate.change({ lat: actualPoint[1], lng: actualPoint[0] });
+
+							this.view.goTo({
+								center: this.view.center
+							});
 						}
 					}
 				}, time);
@@ -286,7 +287,7 @@ class AppGeo extends React.Component {
 					type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
 					style: "circle",
 					color: [255, 255, 255, 1],
-					size: 10,
+					size: 15,
 					outline: { // autocasts as new SimpleLineSymbol()
 						width: 1,
 						color: [0, 0, 255, 1]
@@ -369,23 +370,63 @@ class AppGeo extends React.Component {
 	}
 
 	simulationLayer() {
-		loadModules(["esri/Graphic"], options)
-		.then(([Graphic]) => {
+		loadModules(["esri/Graphic", "esri/geometry/Point"], options)
+			.then(([Graphic, Point]) => {
 
-		this.map.layers.removeAll();
-		var routeSymbol = {
-			type: "simple-line", // autocasts as SimpleLineSymbol()
-			color: [0, 0, 255, 0.5],
-			width: 5
-		};
-		var simulation = new Graphic({
-			geometry: this.props.routeSimulation,
-			symbol: routeSymbol
-		});
-		routeLayer.add(simulation);
-		this.map.layers.add(routeLayer);
-	});
-}
+				// Define the symbology used to display the stops
+				var firstSymbol = {
+					type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+					style: "circle",
+					color: [255, 255, 255, 1],
+					size: 15,
+					outline: { // autocasts as new SimpleLineSymbol()
+						width: 1,
+						color: [0, 0, 255, 1]
+					}
+				};
+
+				var lastSymbol = {
+					type: "picture-marker", // autocasts as new PictureMarkerSymbol()
+					url: "http://siniestro.xyz/pis/way.png",
+					width: "32px",
+					height: "32px",
+					yoffset: "15px"
+				};
+
+				this.map.layers.removeAll();
+				var routeSymbol = {
+					type: "simple-line", // autocasts as SimpleLineSymbol()
+					color: [0, 0, 255, 0.5],
+					width: 5
+				};
+
+				var simulation = new Graphic({
+					geometry: this.props.routeSimulation,
+					symbol: routeSymbol
+				});
+
+				var first = this.props.routeSimulation.paths[0][0];
+				var last = this.props.routeSimulation.paths[0][this.props.routeSimulation.paths[0].length - 1];
+				var pointFirst = new Point(first[0], first[1], { wkid: 4326 });
+				var pointLast = new Point(last[0], last[1], { wkid: 4326 });
+
+				var stopFirst = new Graphic({
+					geometry: pointFirst,
+					symbol: firstSymbol
+				});
+
+				var stopLast = new Graphic({
+					geometry: pointLast,
+					symbol: lastSymbol
+				});
+
+				routeLayer.add(simulation);
+				routeLayer.add(stopFirst);
+				routeLayer.add(stopLast);
+
+				this.map.layers.add(routeLayer);
+			});
+	}
 
 	componentDidUpdate() {
 		if (steps !== this.props.steps) {
@@ -393,7 +434,12 @@ class AppGeo extends React.Component {
 			this.updateRouteLayer();
 		}
 
-		if (this.props.routeSimulation !== null) {
+		if (this.props.routeSimulation !== routeSimulation) {
+			routeSimulation = this.props.routeSimulation;
+			this.simulationLayer();
+		}
+		if (this.props.routeSimulation !== routeSimulation && this.props.routeSimulation !== null) {
+			routeSimulation = this.props.routeSimulation;
 			this.simulationLayer();
 		}
 
@@ -410,35 +456,35 @@ class AppGeo extends React.Component {
 			'esri/widgets/Print',
 			'esri/widgets/Search',
 		], options)
-		.then(([Map, MapView, GraphicsLayer, Print, Search]) => {
+			.then(([Map, MapView, GraphicsLayer, Print, Search]) => {
 
-			// The stops and route result will be stored in this layer
-			this.routeLayer = new GraphicsLayer();
+				// The stops and route result will be stored in this layer
+				this.routeLayer = new GraphicsLayer();
 
-			this.map = new Map({
-				basemap: "streets",
-				wkid: 4326,
-				layers: [this.routeLayer] // Add the route layer to the map
+				this.map = new Map({
+					basemap: "streets",
+					wkid: 4326,
+					layers: [this.routeLayer] // Add the route layer to the map
+				});
+
+				this.view = new MapView({
+					container: "viewDiv",
+					map: this.map,
+					zoom: this.state.zoom,
+					center: [this.state.longitude, this.state.latitude]
+				});
+
+				this.print = new Print({
+					view: this.view,
+					printServiceUrl: "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export Web Map Task"
+				}, "imprimir");
+
+				// Add widget to the top right corner of the view
+				this.search = new Search({ view: this.view }, "buscar");
+				this.search.on("select-result", this.setArrayCoordinates);
+				this.search.on("select-result", this.addStop);
+				this.loadCountiesLayer();
 			});
-
-			this.view = new MapView({
-				container: "viewDiv",
-				map: this.map,
-				zoom: this.state.zoom,
-				center: [this.state.longitude, this.state.latitude]
-			});
-
-			this.print = new Print({
-				view: this.view,
-				printServiceUrl: "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export Web Map Task"
-			}, "imprimir");
-
-			// Add widget to the top right corner of the view
-			this.search = new Search({ view: this.view }, "buscar");
-			this.search.on("select-result", this.setArrayCoordinates);
-			this.search.on("select-result", this.addStop);
-			this.loadCountiesLayer();
-		});
 	}
 
 	render() {
