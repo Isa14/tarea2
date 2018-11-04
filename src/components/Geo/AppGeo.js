@@ -258,10 +258,10 @@ class AppGeo extends React.Component {
 							this.currentCoordIndex = (this.currentCoordIndex + 1) % coords[0].length;
 						} else {
 							geolocate.change({ lat: actualPoint[1], lng: actualPoint[0] });
-
 							this.view.goTo({
 								center: this.view.center
 							});
+							this.currentCoordIndex = this.currentCoordIndex;
 						}
 					}
 				}, time);

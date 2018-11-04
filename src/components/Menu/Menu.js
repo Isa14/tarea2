@@ -32,6 +32,7 @@ class Menu extends React.Component {
       route: true,
       pdf: false
     });
+    this.props.isSearching(false);
   }
 
   handlePdf() {
@@ -40,6 +41,7 @@ class Menu extends React.Component {
       route: false,
       pdf: true
     });
+    this.props.isSearching(false);
   }
 
   handleSearch() {
@@ -48,6 +50,7 @@ class Menu extends React.Component {
       route: false,
       pdf: false
     });
+    this.props.isSearching(true);
   }
 
   dragStart(event) {
@@ -271,7 +274,8 @@ Menu.propTypes = {
     saveSteps: PropTypes.func,
     updateSteps: PropTypes.func,
     simulateRoute: PropTypes.func,
-    getBufferSize: PropTypes.func
+    getBufferSize: PropTypes.func,
+    isSearching: PropTypes.func
 };
 
 

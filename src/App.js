@@ -18,7 +18,8 @@ class App extends Component {
       buffer: [],
       route: null,
       bufferSize: 0,
-      routeSimulation: null
+      routeSimulation: null,
+      searching: true
     };
     // this.handleRequest = this.handleRequest.bind(this);
     this.setSteps = this.setSteps.bind(this);
@@ -36,6 +37,13 @@ class App extends Component {
     this.setRouteLayer = this.setRouteLayer.bind(this);
     this.updateRoute = this.updateRoute.bind(this);
     this.getRoute = this.getRoute.bind(this);
+    this.isSearching = this.isSearching.bind(this);
+  }
+
+  isSearching(searching) {
+    this.setState({
+      searching: searching
+    });
   }
 
   loadEventLayer() {
@@ -112,7 +120,8 @@ class App extends Component {
 
   updateEventSteps() {
     loadModules(["esri/request"], options).then(([esriRequest]) => {
-      var urlDelete = "http://sampleserver5.arcgisonline.com/arcgis/rest/services/LocalGovernment/Events/FeatureServer/0/deleteFeatures";
+      var urlDelete =
+        "http://sampleserver5.arcgisonline.com/arcgis/rest/services/LocalGovernment/Events/FeatureServer/0/deleteFeatures";
       esriRequest(urlDelete, {
         body: { f: "json", where: "eventid=20180514", sr: 4326 },
         method: "POST"
@@ -129,7 +138,8 @@ class App extends Component {
       }
 
       var payloadGeometries = JSON.stringify(geometries);
-      var urlGeometry = "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Events/FeatureServer/0/addFeatures";
+      var urlGeometry =
+        "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Events/FeatureServer/0/addFeatures";
       esriRequest(urlGeometry, {
         body: { f: "json", features: payloadGeometries, sr: 4326 },
         method: "POST"
@@ -141,14 +151,15 @@ class App extends Component {
     loadModules(["esri/request"], options).then(([esriRequest]) => {
       var features = [];
       features.push(this.state.route);
-      features[0]['attributes'] = {
+      features[0]["attributes"] = {
         notes: name,
         trailtype: 20180514
       };
 
       var payload = JSON.stringify(features);
       console.log(payload);
-      var url = "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Recreation/FeatureServer/1/addFeatures";
+      var url =
+        "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Recreation/FeatureServer/1/addFeatures";
       esriRequest(url, {
         body: { f: "json", features: payload },
         method: "POST"
@@ -222,8 +233,9 @@ class App extends Component {
   }
 
   render() {
+    let pageSearching = ["tm-page uk-flex uk-flex-center", this.state.searching ? "" : "tm-no-searching"];
     return (
-      <div id="id-page" className="tm-page uk-flex uk-flex-center">
+      <div id="id-page" className={pageSearching.join(" ").trim()}>
         <Menu
           steps={this.state.steps}
           quitStep={this.quitStep}
@@ -233,6 +245,7 @@ class App extends Component {
           routes={this.state.buffer}
           simulateRoute={this.simulateRoute}
           getBufferSize={this.getBufferSize}
+          isSearching={this.isSearching}
         />
         {this.state.token ?
           <AppGeo
