@@ -24,7 +24,7 @@ class Menu extends React.Component {
     this.handlePdf = this.handlePdf.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleBuffer = this.handleBuffer.bind(this);
-  }
+   }
 
   handleRoute() {
     this.setState({
@@ -143,7 +143,7 @@ class Menu extends React.Component {
 
     let listDrag = [
       "tm-list tm-list-drag",
-      this.props.steps.length > 1 ? "tm-list-route" : ""
+      this.props.steps && this.props.steps.length > 1 ? "tm-list-route" : ""
     ];
 
     let showPdf = [
@@ -169,7 +169,7 @@ class Menu extends React.Component {
             </div>
             <ul className="tm-list">
               {
-                this.props.routes.length > 0
+                this.props.routes && this.props.routes.length > 0
                 ? this.props.routes.map((route, index) =>
                   <li key={index}>{route.name}<a onClick={this.handleSimulate.bind(this, index)}><img src="way.svg" className="tm-svg" alt="svg" /></a></li>
                 )
@@ -191,7 +191,7 @@ class Menu extends React.Component {
             <div className="tm-ruta">
               <h2>Paradas de la ruta actual</h2>
               <ul onDragOver={this.dragOver.bind(this)} className={listDrag.join(" ").trim()}>
-                {this.props.steps.length > 0 ?
+                {this.props.steps && this.props.steps.length > 0 ?
                   this.props.steps.map((step, index) =>
                     <li
                       draggable
@@ -210,7 +210,7 @@ class Menu extends React.Component {
                   <p>Aún no ha seleccionado ninguna parada para su ruta.</p>
                 }
               </ul>
-              {this.props.steps.length > 1 ?
+              {this.props.steps && this.props.steps.length > 1 ?
                 <div>
                   <div className="tm-form">
                     <form>
