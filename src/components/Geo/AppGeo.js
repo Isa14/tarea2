@@ -3,6 +3,8 @@ import "./AppGeo.less";
 import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
 import geolocate from 'mock-geolocation';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 var steps = null;
 var routeLayer = null;
@@ -10,6 +12,7 @@ var routeResult = null;
 var time = 11000;
 var buffer = 1000;
 var routeSimulation = null;
+var styles = ['square', 'circle', 'cross', 'diamond', 'x'];
 
 const options = {
 	url: 'https://js.arcgis.com/4.9/'
@@ -23,7 +26,9 @@ class AppGeo extends React.Component {
 			latitude: 39.75999858400047,
 			longitude: -98.49999638099968,
 			speedGlobal: 0,
-			totalPop: 0
+			totalPop: 0,
+			movilStyle: '',
+			counties: []
 		};
 
 		this.updateRouteLayer = this.updateRouteLayer.bind(this);
@@ -93,6 +98,15 @@ class AppGeo extends React.Component {
 				});
 				// Agregar el grafico a la vista
 				this.view.graphics.add(this.countiesPolygons[index]);
+			}
+
+			var countiesNames = this.intersectedCounties.map(county => county.attributes.NAME);
+			if (isEmpty(this.state.counties)) {
+				this.setState({ counties: countiesNames });
+			} else if (!isEqual(countiesNames, this.state.counties)) {
+				var indexStyle = (styles.indexOf(this.state.movilStyle) + 1) % styles.length;
+				var style = styles[indexStyle];
+				this.setState({ counties: countiesNames, movilStyle: style });
 			}
 
 			var fillSymbolCircle = new SimpleFillSymbol({
@@ -189,6 +203,9 @@ class AppGeo extends React.Component {
 			], options)
 			.then(([Point, Graphic]) => {
 				var coords = this.props.routeSimulation.paths;
+				if (this.state.movilStyle == '') {
+					this.setState({ movilStyle: styles[0] });
+				}
 
 				geolocate.use();
 				this.interval = setInterval(() => {
@@ -223,7 +240,7 @@ class AppGeo extends React.Component {
 							var typeSymbol = "simple-marker"; // asumo que acá se va a cambiar así que lo dejo por ahora así
 							var stopSymbol = {
 								type: typeSymbol, // autocasts as new SimpleMarkerSymbol()
-								style: "circle",
+								style: this.state.movilStyle,
 								color: [red, green, 0, 1],
 								size: 20,
 								outline: { // autocasts as new SimpleLineSymbol()
@@ -491,7 +508,7 @@ class AppGeo extends React.Component {
 		return (
 			<div id="viewDiv">
 				<div id="id-speed" className="tm-speed">
-					<p><strong>Estado actual:</strong> </p>
+					<p><strong>Counties:</strong> {this.state.counties.join(', ')} </p>
 					<p><strong>Población en el buffer:</strong> {this.state.totalPop} </p>
 					<p><strong>Velocidad actual:</strong> {this.state.speedGlobal} km/h </p>
 					<div>
