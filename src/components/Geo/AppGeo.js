@@ -173,7 +173,7 @@ class AppGeo extends React.Component {
 
 			this.track = new Track({
 				view: this.view,
-				goToLocationEnabled: true
+				goToLocationEnabled: false
 			});
 			this.view.ui.add(this.track, "top-left");
 		});
