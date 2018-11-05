@@ -7,7 +7,7 @@ import geolocate from 'mock-geolocation';
 var steps = null;
 var routeLayer = null;
 var routeResult = null;
-var time = 10000;
+var time = 11000;
 var buffer = 1000;
 
 const options = {
@@ -72,7 +72,7 @@ class AppGeo extends React.Component {
 			var countiesRings = [];
 			var arrayLength = response.features.length;
 			this.intersectedCounties = response.features;
-			this.lala = [];
+			this.countiesPolygons = [];
 			for (var index = 0; index < arrayLength; index++) {
 				// countiesRings.push({ rings: this.intersectedCounties[i].geometry.rings });
 				countiesRings.push(this.intersectedCounties[index].geometry);
@@ -83,13 +83,13 @@ class AppGeo extends React.Component {
 						width: 1
 					}
 				});
-					// Agregar el simbolo y la geometria a un grafico nuevo
-					this.lala[index] = new Graphic({
+				// Agregar el simbolo y la geometria a un grafico nuevo
+				this.countiesPolygons[index] = new Graphic({
 					geometry: this.intersectedCounties[index].geometry,
 					symbol: fillSymbol
-					});
-					// Agregar el grafico a la vista
-					this.view.graphics.add(this.lala[index]);
+				});
+				// Agregar el grafico a la vista
+				this.view.graphics.add(this.countiesPolygons[index]);
 			}
 
 			var fillSymbolCircle = new SimpleFillSymbol({
@@ -99,7 +99,7 @@ class AppGeo extends React.Component {
 					width: 1
 				}
 			});
-				// Agregar el simbolo y la geometria a un grafico nuevo
+			 // Agregar el simbolo y la geometria a un grafico nuevo
 			this.polygonGraphic = new Graphic({
 				geometry: this.circleGeometry,
 				symbol: fillSymbolCircle
@@ -114,9 +114,10 @@ class AppGeo extends React.Component {
 					geometry: JSON.stringify({ geometryType: "esriGeometryPolygon", geometry: { rings: this.circleGeometry.rings } }),
 					sr: 4326
 				},
-				responseType: 'json'
+				responseType: 'json',
+				method: 'post'
 			};
-			var url = 'http://tasks.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer/intersect';
+			var url = 'http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/intersect';
 			esriRequest(url, options_esri).then(response => this.getAreas(response));
 		});
 	}
@@ -173,7 +174,7 @@ class AppGeo extends React.Component {
 
 			this.track = new Track({
 				view: this.view,
-				goToLocationEnabled: false
+				goToLocationEnabled: true
 			});
 			this.view.ui.add(this.track, "top-left");
 		});
