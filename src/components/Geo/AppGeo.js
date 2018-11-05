@@ -71,14 +71,14 @@ class AppGeo extends React.Component {
 
 	intersectRings(response) {
 		loadModules(["esri/tasks/support/Query", "esri/request", "esri/symbols/SimpleFillSymbol", "esri/Graphic"], options)
-		.then(([Query, esriRequest, SimpleFillSymbol, Graphic, GeometryService]) => {
+		.then(([Query, esriRequest, SimpleFillSymbol, Graphic]) => {
 			var countiesRings = [];
 			var arrayLength = response.features.length;
 			this.intersectedCounties = response.features;
 			this.countiesPolygons = [];
 			for (var index = 0; index < arrayLength; index++) {
 				// countiesRings.push({ rings: this.intersectedCounties[i].geometry.rings });
-				countiesRings.push(this.intersectedCounties[index].geometry);
+				countiesRings.push({ rings: this.intersectedCounties[index].geometry.rings });
 				var fillSymbol = new SimpleFillSymbol({
 					color: [60, 179, 113, 0.3],
 					outline: {
@@ -96,7 +96,7 @@ class AppGeo extends React.Component {
 			}
 
 			var fillSymbolCircle = new SimpleFillSymbol({
-				color: [227, 139, 79, 0.8],
+				color: [227, 139, 79, 0.3],
 				outline: {
 					color: [255, 255, 255],
 					width: 1
