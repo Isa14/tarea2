@@ -7,7 +7,7 @@ import geolocate from 'mock-geolocation';
 var steps = null;
 var routeLayer = null;
 var routeResult = null;
-var time = 10000;
+var time = 11000;
 var buffer = 1000;
 var routeSimulation = null;
 
@@ -71,58 +71,58 @@ class AppGeo extends React.Component {
 
 	intersectRings(response) {
 		loadModules(["esri/tasks/support/Query", "esri/request", "esri/symbols/SimpleFillSymbol", "esri/Graphic"], options)
-			.then(([Query, esriRequest, SimpleFillSymbol, Graphic, GeometryService]) => {
-				var countiesRings = [];
-				var arrayLength = response.features.length;
-				this.intersectedCounties = response.features;
-				this.lala = [];
-				for (var index = 0; index < arrayLength; index++) {
-					// this.view.graphics.removeAll();
-					// countiesRings.push({ rings: this.intersectedCounties[i].geometry.rings });
-					countiesRings.push(this.intersectedCounties[index].geometry);
-					var fillSymbol = new SimpleFillSymbol({
-						color: [60, 179, 113, 0.3],
-						outline: {
-							color: [255, 255, 255],
-							width: 1
-						}
-					});
-					// Agregar el simbolo y la geometria a un grafico nuevo
-					this.lala[index] = new Graphic({
-						geometry: this.intersectedCounties[index].geometry,
-						symbol: fillSymbol
-					});
-					// Agregar el grafico a la vista
-					this.view.graphics.add(this.lala[index]);
-				}
-
-				var fillSymbolCircle = new SimpleFillSymbol({
-					color: [227, 139, 79, 0.3],
+		.then(([Query, esriRequest, SimpleFillSymbol, Graphic, GeometryService]) => {
+			var countiesRings = [];
+			var arrayLength = response.features.length;
+			this.intersectedCounties = response.features;
+			this.countiesPolygons = [];
+			for (var index = 0; index < arrayLength; index++) {
+				// countiesRings.push({ rings: this.intersectedCounties[i].geometry.rings });
+				countiesRings.push(this.intersectedCounties[index].geometry);
+				var fillSymbol = new SimpleFillSymbol({
+					color: [60, 179, 113, 0.3],
 					outline: {
 						color: [255, 255, 255],
 						width: 1
 					}
 				});
 				// Agregar el simbolo y la geometria a un grafico nuevo
-				this.polygonGraphic = new Graphic({
-					geometry: this.circleGeometry,
-					symbol: fillSymbolCircle
+				this.countiesPolygons[index] = new Graphic({
+					geometry: this.intersectedCounties[index].geometry,
+					symbol: fillSymbol
 				});
 				// Agregar el grafico a la vista
-				this.view.graphics.add(this.polygonGraphic);
+				this.view.graphics.add(this.countiesPolygons[index]);
+			}
 
-				var options_esri = {
-					query: {
-						f: 'json',
-						geometries: JSON.stringify({ geometryType: "esriGeometryPolygon", geometries: countiesRings }),
-						geometry: JSON.stringify({ geometryType: "esriGeometryPolygon", geometry: { rings: this.circleGeometry.rings } }),
-						sr: 4326
-					},
-					responseType: 'json'
-				};
-				var url = 'http://tasks.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer/intersect';
-				esriRequest(url, options_esri).then(response => this.getAreas(response));
+			var fillSymbolCircle = new SimpleFillSymbol({
+				color: [227, 139, 79, 0.8],
+				outline: {
+					color: [255, 255, 255],
+					width: 1
+				}
 			});
+			 // Agregar el simbolo y la geometria a un grafico nuevo
+			this.polygonGraphic = new Graphic({
+				geometry: this.circleGeometry,
+				symbol: fillSymbolCircle
+			});
+			// Agregar el grafico a la vista
+			this.view.graphics.add(this.polygonGraphic);
+
+			var options_esri = {
+				query: {
+					f: 'json',
+					geometries: JSON.stringify({ geometryType: "esriGeometryPolygon", geometries: countiesRings }),
+					geometry: JSON.stringify({ geometryType: "esriGeometryPolygon", geometry: { rings: this.circleGeometry.rings } }),
+					sr: 4326
+				},
+				responseType: 'json',
+				method: 'post'
+			};
+			var url = 'http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer/intersect';
+			esriRequest(url, options_esri).then(response => this.getAreas(response));
+		});
 	}
 
 	getAreas(response) {
