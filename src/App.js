@@ -143,7 +143,7 @@ class App extends Component {
       esriRequest(urlGeometry, {
         body: { f: "json", features: payloadGeometries, sr: 4326 },
         method: "POST"
-      });
+      }).then(this.getEventLayer());
     });
   }
 
@@ -163,7 +163,7 @@ class App extends Component {
       esriRequest(url, {
         body: { f: "json", features: payload },
         method: "POST"
-      });
+      }).then(this.getRouteLayer());
     });
   }
 
