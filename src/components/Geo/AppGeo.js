@@ -3,8 +3,6 @@ import "./AppGeo.less";
 import PropTypes from "prop-types";
 import { loadModules } from 'esri-loader';
 import geolocate from 'mock-geolocation';
-import isEqual from 'lodash/isEqual';
-import isEmpty from 'lodash/isEmpty';
 
 var steps = null;
 var routeLayer = null;
@@ -28,7 +26,7 @@ class AppGeo extends React.Component {
 			speedGlobal: 0,
 			totalPop: 0,
 			movilStyle: '',
-			counties: []
+			movilState: ''
 		};
 
 		this.updateRouteLayer = this.updateRouteLayer.bind(this);
@@ -44,6 +42,7 @@ class AppGeo extends React.Component {
 		this.getAreas = this.getAreas.bind(this);
 		this.metresToMiles = this.metresToMiles.bind(this);
 		this.showRoute = this.showRoute.bind(this);
+		this.intersectState = this.intersectState.bind(this);
 	}
 
 	metresToMiles(metres) {
@@ -56,6 +55,10 @@ class AppGeo extends React.Component {
 				this.countiesFeatureLayer = new FeatureLayer({
 					url: "http://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_1990-2000_Population_Change/MapServer/3"
 				});
+
+				this.statesFeatureLayer = new FeatureLayer({
+					url: "http://services.arcgisonline.com/arcgis/rest/services/Demographics/USA_1990-2000_Population_Change/MapServer/4"
+				});
 			});
 	};
 
@@ -63,20 +66,43 @@ class AppGeo extends React.Component {
 		loadModules(["esri/tasks/support/Query"], options)
 			.then(([Query]) => {
 				this.map.layers.add(this.countiesFeatureLayer);
+				// Conseguir los condados que intersectan al buffer
 				var query = this.countiesFeatureLayer.createQuery();
 				query.geometry = this.circleGeometry;
 				query.spatialRelationship = 'intersects';
 				query.returnGeometry = true;
 				query.outFields = ["*"];
 
+				this.map.layers.add(this.statesFeatureLayer);
+				// Conseguir el estado por el que va el movil
+				var query_states = this.statesFeatureLayer.createQuery();
+				query_states.geometry = this.circleGeometry.center;
+				query_states.spatialRelationship = 'intersects';
+				query_states.returnGeometry = false;
+				query_states.outFields = ["NAME"];
+
+				this.statesFeatureLayer.queryFeatures(query_states)
+					.then(response => this.intersectState(response));
+
 				this.countiesFeatureLayer.queryFeatures(query)
 					.then(response => this.intersectRings(response));
 			});
 	};
 
+	intersectState(response) {
+		var nuevoState = response.features[0].attributes.NAME;
+		if (this.state.movilState == '') {
+			this.setState({ movilState: nuevoState });
+		} else if (this.state.movilState != nuevoState) {
+			var indexStyle = (styles.indexOf(this.state.movilStyle) + 1) % styles.length;
+			var style = styles[indexStyle];
+			this.setState({ movilState: nuevoState, movilStyle: style });
+		}
+	}
+
 	intersectRings(response) {
-		loadModules(["esri/tasks/support/Query", "esri/request", "esri/symbols/SimpleFillSymbol", "esri/Graphic"], options)
-		.then(([Query, esriRequest, SimpleFillSymbol, Graphic]) => {
+		loadModules(["esri/request", "esri/symbols/SimpleFillSymbol", "esri/Graphic"], options)
+		.then(([esriRequest, SimpleFillSymbol, Graphic]) => {
 			var countiesRings = [];
 			var arrayLength = response.features.length;
 			this.intersectedCounties = response.features;
@@ -97,15 +123,6 @@ class AppGeo extends React.Component {
 					symbol: fillSymbol
 				});
 				this.view.graphics.add(this.countiesPolygons[index]);
-			}
-
-			var countiesNames = this.intersectedCounties.map(county => county.attributes.NAME);
-			if (isEmpty(this.state.counties)) {
-				this.setState({ counties: countiesNames });
-			} else if (!isEqual(countiesNames, this.state.counties)) {
-				var indexStyle = (styles.indexOf(this.state.movilStyle) + 1) % styles.length;
-				var style = styles[indexStyle];
-				this.setState({ counties: countiesNames, movilStyle: style });
 			}
 
 			var fillSymbolCircle = new SimpleFillSymbol({
@@ -507,7 +524,7 @@ class AppGeo extends React.Component {
 		return (
 			<div id="viewDiv">
 				<div id="id-speed" className="tm-speed">
-					<p><strong>Counties:</strong> {this.state.counties.join(', ')} </p>
+					<p><strong>Estado:</strong> {this.state.movilState} </p>
 					<p><strong>Población en el buffer:</strong> {this.state.totalPop} </p>
 					<p><strong>Velocidad actual:</strong> {this.state.speedGlobal} km/h </p>
 					<div>
