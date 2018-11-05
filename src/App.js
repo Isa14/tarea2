@@ -125,25 +125,26 @@ class App extends Component {
       esriRequest(urlDelete, {
         body: { f: "json", where: "eventid=20180514", sr: 4326 },
         method: "POST"
-      });
-      var geometries = [];
-      for (var index = 0; index < this.state.steps.length; index++) {
-        geometries[index] = {
-          geometry: this.state.steps[index].geometry,
-          attributes: {
-            eventid: 20180514,
-            description: this.state.steps[index].address
-          }
-        };
-      }
+      }).then(() => {
+        var geometries = [];
+        for (var index = 0; index < this.state.steps.length; index++) {
+          geometries[index] = {
+            geometry: this.state.steps[index].geometry,
+            attributes: {
+              eventid: 20180514,
+              description: this.state.steps[index].address
+            }
+          };
+        }
 
-      var payloadGeometries = JSON.stringify(geometries);
-      var urlGeometry =
-        "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Events/FeatureServer/0/addFeatures";
-      esriRequest(urlGeometry, {
-        body: { f: "json", features: payloadGeometries, sr: 4326 },
-        method: "POST"
-      }).then(this.getEventLayer());
+        var payloadGeometries = JSON.stringify(geometries);
+        var urlGeometry =
+          "http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/LocalGovernment/Events/FeatureServer/0/addFeatures";
+        esriRequest(urlGeometry, {
+          body: { f: "json", features: payloadGeometries, sr: 4326 },
+          method: "POST"
+        }).then(this.getEventLayer());
+      });
     });
   }
 
