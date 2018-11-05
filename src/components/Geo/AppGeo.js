@@ -96,7 +96,6 @@ class AppGeo extends React.Component {
 					geometry: this.intersectedCounties[index].geometry,
 					symbol: fillSymbol
 				});
-				// Agregar el grafico a la vista
 				this.view.graphics.add(this.countiesPolygons[index]);
 			}
 
