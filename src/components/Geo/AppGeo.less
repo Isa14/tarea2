@@ -16,7 +16,7 @@
   position: absolute;
   left: 50%;
   bottom: 0;
-  width: 90%; height: 180px;
+  width: 90%; height: 165px;
   overflow: hidden;
   #uk-library > .translate(-50%, 0);
 
@@ -52,7 +52,7 @@
         position: absolute;
         left: 50%;
         bottom: 0;
-        #uk-library > .transition(all 6s);
+        #uk-library > .transition(all 12s);
         transform-origin: 50% 100%;
         transform: translate(-50%, 0) rotate(-80deg);
       }
@@ -67,16 +67,42 @@
     }
 }
 
-.esri-popup__main-container{
-    max-height: 220px;
-    max-width: 290px;
-    .esri-popup__content{
-        height: 160px;
-    }
-}
 
 svg{
     circle{
         z-index: 999;
+    }
+}
+
+.esri-popup__main-container{
+    max-width: 290px;
+}
+.esri-ui-manual-container{
+    .esri-popup__action{
+        .uk-hidden;
+    }
+}
+
+
+.tm-no-searching{
+    .esri-popup__main-container{
+        max-height: 220px;
+        max-width: 290px;
+        .esri-popup__content{
+            height: 160px;
+        }
+    }
+    .esri-ui-manual-container{
+        .uk-flex;
+        .uk-flex-center;
+        .uk-flex-middle;
+        
+        .esri-popup{
+            margin-bottom: 275px;
+        }
+    
+        .esri-popup__action{
+            .uk-hidden;
+        }
     }
 }
