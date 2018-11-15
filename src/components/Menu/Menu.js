@@ -157,7 +157,7 @@ class Menu extends React.Component {
     return (
       <div className="tm-offcanvas-bar">
         <div className={classOffcanvas.join(" ").trim()}>
-          <div className="tm-burger">
+          <div className="tm-burger" uk-tooltip="title: Cerrar menú; pos: right">
             <a className="tm-link-burger uk-flex" onClick={this.handleClick}>
               <img className="tm-svg" src="menu.svg" alt="menu" />
             </a>
@@ -247,16 +247,16 @@ class Menu extends React.Component {
             </div>
           </div>
           <div className={classCloseOffcanvas.join(" ").trim()}>
-            <a onClick={this.handleClick}>
+            <a onClick={this.handleClick} data-uk-tooltip="title: Cerrar menú; pos: right">
               <img src="cancel.svg" className="tm-svg" alt="svg" />
             </a>
-            <a onClick={this.handleSearch} className={activeSearching}>
+            <a onClick={this.handleSearch} className={activeSearching} data-uk-tooltip="title: Buscador; pos: right">
               <img src="lupa.svg" className="tm-svg" alt="svg" />
             </a>
-            <a onClick={this.handleRoute} className={activeRoute}>
+            <a onClick={this.handleRoute} className={activeRoute} data-uk-tooltip="title: Simulador; pos: right">
               <img src="location.svg" className="tm-svg" alt="svg" />
             </a>
-            <a onClick={this.handlePdf} className={activePdf}>
+            <a onClick={this.handlePdf} className={activePdf} data-uk-tooltip="title: Exportar a PDF; pos: right">
               <img src="pdf.svg" className="tm-svg" alt="svg" />
             </a>
           </div>

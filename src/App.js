@@ -66,9 +66,10 @@ class App extends Component {
       query.where = "eventid=20180514";
       query.outFields = ["*"];
 
-      this.eventsFeatureLayer
-        .queryFeatures(query)
-        .then(response => this.setEventLayer(response.features));
+      setTimeout(() =>
+        this.eventsFeatureLayer
+          .queryFeatures(query)
+          .then(response => this.setEventLayer(response.features)), 1000);
     });
   }
 
@@ -78,9 +79,10 @@ class App extends Component {
       query.where = "trailtype=20180514";
       query.outFields = ["*"];
 
+      setTimeout(() =>
       this.trailsFeatureLayer
         .queryFeatures(query)
-        .then(response => this.setRouteLayer(response.features));
+        .then(response => this.setRouteLayer(response.features)), 1000);
     });
   }
 

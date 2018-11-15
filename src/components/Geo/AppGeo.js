@@ -524,9 +524,9 @@ class AppGeo extends React.Component {
 		return (
 			<div id="viewDiv">
 				<div id="id-speed" className="tm-speed">
-					<p><strong>Estado:</strong> {this.state.movilState} </p>
-					<p><strong>Población en el buffer:</strong> {this.state.totalPop} </p>
+					<p><strong>Estado actual:</strong> {this.state.movilState} </p>
 					<p><strong>Velocidad actual:</strong> {this.state.speedGlobal} km/h </p>
+					<p><strong>Población en el buffer:</strong> {this.state.totalPop} </p>
 					<div>
 						<div id="speed"></div>
 					</div>
